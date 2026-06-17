@@ -1,0 +1,135 @@
+import { compare, hash } from 'bcrypt'
+import { SignJWT, jwtVerify } from 'jose'
+import { cookies } from 'next/headers'
+import { cache } from 'react'
+
+// JWT types
+interface JWTPayload {
+  userId: string
+  [key: string]: string | number | boolean | null | undefined
+}
+
+
+// Convert secret string into a byte array for the Web Crypto API
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.JWT_SECRET || 'default-fallback-secret-key-32-chars'
+);
+
+export const ACCESS_TOKEN_EXPIRATION = '15m'     // Access token lasts 15 minutes
+export const REFRESH_TOKEN_EXPIRATION = '24h'  
+export const REFRESH_THRESHOLD = 2 * 60  // Refresh 2 minutes before expiration
+
+
+// Generate a short-live access token
+export async function generateAccessToken(payload:JWTPayload): Promise<string> {
+    return await new SignJWT(payload)
+    .setProtectedHeader({alg:'HS256'})
+    .setIssuedAt()
+    .setExpirationTime(ACCESS_TOKEN_EXPIRATION)
+    .sign(JWT_SECRET);
+}
+
+// Generate a long-live refresh token
+export async function generateRefreshToken(payload: JWTPayload):Promise<string>{
+    return await new SignJWT(payload)
+    .setProtectedHeader({alg:'HS256'})
+    .setIssuedAt()
+    .setExpirationTime(REFRESH_TOKEN_EXPIRATION)
+    .sign(JWT_SECRET);
+}
+
+// Verify any JWT token structurally
+export async function verifyToken(token:string): Promise< JWTPayload | null  >{
+    try {
+        const { payload } = await jwtVerify(token, JWT_SECRET)
+        return payload as JWTPayload
+    } catch (error) {
+        console.error('JWT verification failed:', error)
+        return null
+    }
+}
+
+// Determines if the short-lived access token needs to be swapped
+export async function shouldRefreshAccessToken(accessToken: string): Promise<boolean> {
+  try {
+    const { payload } = await jwtVerify(accessToken, JWT_SECRET, {
+      clockTolerance: 15, 
+    })
+
+    const exp = payload.exp
+    if (typeof exp !== 'number') return true
+
+    const now = Math.floor(Date.now() / 1000)
+    return (exp - now) < REFRESH_THRESHOLD
+  } catch (error) {
+    return true 
+  }
+}
+
+// Initial Session Creation (On Login/Register)
+export async function createSession (userId:string): Promise<string | null>{
+ try{
+    const acessToken = await generateAccessToken({userId})
+    const refreshToken = await generateRefreshToken({userId})
+
+    const cookieStore = await cookies();
+
+    cookieStore.set({
+        name: 'refresh_token',
+        value: refreshToken,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+        path: '/',
+         sameSite: 'strict', 
+    })
+
+    return acessToken;
+}catch(error){
+    console.error('Failed to create session:', error)
+    return null
+}
+}
+
+// Server-side check to see if the user is logged in
+export const getSession = cache(async() => {
+    try {
+        
+        const cookieStore = await cookies();
+        
+        const token = cookieStore.get('refresh_token')?.value;
+        
+        if(!token) return null;
+        
+        const payload = await verifyToken(token)
+        
+        if(!payload) return null;
+        
+        return payload ? payload.userId : null;
+    } catch (error) {
+          if (error instanceof Error && error.message.includes('During prerendering')) {
+            return null
+          }
+        console.error('Failed to get session:', error)
+        return null
+    }
+})
+
+// Completely clears the session
+export async function deleteSession() {
+  const cookieStore = await cookies()
+  cookieStore.delete('refresh_token')
+}
+
+
+
+
+// Hash Passowrd 
+export async function hashPassword(password: string): Promise<string> {
+  return await hash(password, 10)  
+}
+
+// verify Password
+export async function verfiyPassword(password:string , hashedPassword: string): Promise<boolean> {
+  return await compare(password , hashedPassword)
+}
