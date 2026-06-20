@@ -5,6 +5,8 @@ import { createSession } from "@/lib/auth";
 import { hashPassword } from "@/lib/crypto";
 import { signupSchema } from "@/lib/validationSchema";
 import { z } from "zod"; // FIXED: Removed the unused standalone 'email' import
+import {v4 as uuidv4} from 'uuid';
+import { sendConfirmationEmail } from "@/lib/utils/email";
 
 export async function POST(formData: FormData){
     try {
@@ -37,12 +39,18 @@ export async function POST(formData: FormData){
             return NextResponse.json({error: 'Account already exists'}, {status: 400})
         }
 
+        // Hashing password
         const hashedPassowrd = await hashPassword(password);
+
+
+        // verification token
+        const emailToken = uuidv4()
 
         const user = await prisma.user.create({
             data: {
                 email,
                 password: hashedPassowrd,
+                emailToken,
             },
             // Only fetch these specific fields back from the database to avoid password leaks
             select: {
@@ -51,15 +59,24 @@ export async function POST(formData: FormData){
             }
         });
 
-        // Creates secure HTTP-only cookie and returns short-lived access token
-        const accessToken = await createSession(user.id)
-        if(!accessToken){
-           return NextResponse.json({ error: 'Account created, but failed to log in.' }, { status: 500 });
+        // Send confirmation email
+        const validateEmailLink = `${process.env.NEXT_PUBLIC_URL}/registration/confirm?token=${emailToken}`;
+        const { error } = await sendConfirmationEmail(
+            email,
+            validateEmailLink,
+            email.split('@')[0]
+        );
+        
+        if (error) {
+            // Roll back user creation if the email fails to send
+            // This prevents the user from being stuck in an unverified state where they can't sign up again
+            await prisma.user.delete({ where: { id: user.id } });
+            console.error("Failed to send confirmation email:", error);
+            return NextResponse.json({ error: 'Failed to send confirmation email. Please try again.' }, { status: 500 });
         }
 
         return NextResponse.json({
-            message: "User registered successfully",
-            accessToken,
+            message: "User registered successfully. Please check your email to verify your account.",
             user: user // Safely passed without password pollution
         });
 

@@ -1,21 +1,26 @@
+import { hashPassword } from "../lib/crypto";
 import prisma from "../lib/prisma";
 
 async function main() {
+  const defaultPassword = await hashPassword("password123");
+
   const users = await Promise.all([
     prisma.user.upsert({
       where: { email: "alice@prisma.io" },
-      update: { name: "Alice" },
+      update: { password: defaultPassword },
       create: {
         email: "alice@prisma.io",
-        name: "Alice",
+        password: defaultPassword,
+        emailVerifid: true,
       },
     }),
     prisma.user.upsert({
       where: { email: "bob@prisma.io" },
-      update: { name: "Bob" },
+      update: { password: defaultPassword },
       create: {
         email: "bob@prisma.io",
-        name: "Bob",
+        password: defaultPassword,
+        emailVerifid: true,
       },
     }),
   ]);
