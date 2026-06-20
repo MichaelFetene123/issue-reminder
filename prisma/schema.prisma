@@ -9,6 +9,7 @@ datasource db {
 
 model User {
   id           String   @id @default(cuid())
+  userName     String
   email        String   @unique
   password     String
   emailVerifid Boolean  @default(false)
@@ -20,12 +21,13 @@ model User {
 }
 
 model Issue {
-  id          String      @id @default(cuid())
+  id          String         @id @default(cuid())
   title       String
   description String
+  priority    priorityStatus
   status      IssueStatus
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
   @@map("issues")
 }
@@ -37,4 +39,10 @@ enum IssueStatus {
   TODO
   IN_PROGRESS
   DONE
+}
+
+enum priorityStatus {
+  LOW
+  MEDIUM
+  HIGH
 }
