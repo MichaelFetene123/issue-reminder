@@ -20,8 +20,9 @@ export type ActionResponse = {
     message?: string;
 }
 
-export async function POST(formData: FormData){
+export async function POST(request: Request){
     try {
+        const formData = await request.formData();
         const body = {
             email: formData.get("email"),
             password: formData.get("password"),

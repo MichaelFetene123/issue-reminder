@@ -2,7 +2,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { verifyTokenAction } from "@/actions/verifyTokenAction";
+import { verifyTokenAction } from "@/lib/verifyTokenAction";
 import Link from "next/link";
 
 export default function ConfirmRegistrationPage() {

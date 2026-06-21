@@ -1,25 +1,38 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
+import { render } from "@react-email/render";
 import { EmailConfirmationTemplate } from "@/components/emails/emailConfirmationTemplete";
 
-export const sendConfirmationEmail = async (email: string, link: string, userName: string) => {
-  const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+});
 
-  const from = `Issue Reminder <onboarding@resend.dev>`;
+export const sendConfirmationEmail = async (
+  email: string,
+  link: string,
+  userName: string
+) => {
+  try {
+    const html = await render(
+      EmailConfirmationTemplate({
+        userName,
+        verificationUrl: link,
+      })
+    );
 
-  const response = await resend.emails.send({
-    from,
-    to: email,
-    subject: "Verify Your Email Address",
-    react: EmailConfirmationTemplate({
-      userName,
-      verificationUrl: link,
-    }),
-    headers: {
-      // this is important for if the subscriber has to resend the confirmation email.
-      // the date header ensures there is a change in the email and it is not marked as spam.
-      Date: new Date().toUTCString(),
-    },
-  });
+    await transporter.sendMail({
+      from: `Issue Reminder <${process.env.GMAIL_USER}>`,
+      to: email,
+      subject: "Verify Your Email Address",
+      html,
+    });
 
-  return response;
+    return { data: { id: "success" }, error: null };
+  } catch (err) {
+    console.error("Failed to send email:", err);
+    return { data: null, error: err };
+  }
 };
