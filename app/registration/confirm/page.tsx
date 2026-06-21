@@ -59,41 +59,41 @@ export default function ConfirmRegistrationPage() {
     }, [status, router]);
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-50 dark:bg-gray-900">
-            <div className="p-8 text-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl max-w-md w-full transition-all duration-300">
+        <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background">
+            <div className="p-8 text-center bg-card border border-border rounded-2xl shadow-xl max-w-md w-full transition-all duration-300">
                 {status === "loading" && (
                     <div className="flex flex-col items-center">
                         <div className="relative w-16 h-16 mb-6">
-                            <div className="absolute inset-0 rounded-full border-4 border-gray-100 dark:border-gray-700"></div>
-                            <div className="absolute inset-0 rounded-full border-4 border-blue-600 border-t-transparent animate-spin"></div>
+                            <div className="absolute inset-0 rounded-full border-4 border-border"></div>
+                            <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
                         </div>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Verifying Email...</h2>
-                        <p className="text-gray-500 dark:text-gray-400">Please wait while we securely confirm your registration.</p>
+                        <h2 className="text-2xl font-bold text-foreground mb-2">Verifying Email...</h2>
+                        <p className="text-muted-foreground">Please wait while we securely confirm your registration.</p>
                     </div>
                 )}
 
                 {status === "success" && (
                     <div className="flex flex-col items-center">
-                        <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-6 shadow-sm ring-8 ring-green-50 dark:ring-green-900/10">
-                            <svg className="w-10 h-10 text-green-600 dark:text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-6 shadow-sm ring-8 ring-primary/20">
+                            <svg className="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path>
                             </svg>
                         </div>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Email Verified Successfully!</h2>
-                        <p className="text-gray-600 dark:text-gray-300 mb-8">Your account is now active. Welcome aboard!</p>
+                        <h2 className="text-2xl font-bold text-foreground mb-2">Email Verified Successfully!</h2>
+                        <p className="text-muted-foreground mb-8">Your account is now active. Welcome aboard!</p>
                         
-                        <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2 mb-6 overflow-hidden">
+                        <div className="w-full bg-secondary rounded-full h-2 mb-6 overflow-hidden">
                             <div 
-                                className="bg-green-500 h-full rounded-full" 
+                                className="bg-primary h-full rounded-full" 
                                 style={{ width: `${progress}%`, transition: 'width 3s linear' }}
                             ></div>
                         </div>
                         
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-8 font-medium">Redirecting to dashboard in {countdown}...</p>
+                        <p className="text-sm text-muted-foreground mb-8 font-medium">Redirecting to dashboard in {countdown}...</p>
                         
                         <Link 
                             href="/" 
-                            className="w-full inline-flex justify-center items-center px-6 py-3.5 border border-transparent text-base font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 shadow-sm hover:shadow transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800"
+                            className="w-full inline-flex justify-center items-center px-6 py-3.5 border border-transparent text-base font-medium rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm hover:shadow transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                         >
                             Go to Home Now
                         </Link>
@@ -102,17 +102,17 @@ export default function ConfirmRegistrationPage() {
 
                 {status === "error" && (
                     <div className="flex flex-col items-center">
-                        <div className="w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-6 shadow-sm ring-8 ring-red-50 dark:ring-red-900/10">
-                            <svg className="w-10 h-10 text-red-600 dark:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center mb-6 shadow-sm ring-8 ring-destructive/20">
+                            <svg className="w-10 h-10 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
                         </div>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Verification Failed</h2>
-                        <p className="text-gray-600 dark:text-gray-300 mb-8">The link may be invalid or expired. Please request a new verification email.</p>
+                        <h2 className="text-2xl font-bold text-foreground mb-2">Verification Failed</h2>
+                        <p className="text-muted-foreground mb-8">The link may be invalid or expired. Please request a new verification email.</p>
                         
                         <Link 
                             href="/" 
-                            className="w-full inline-flex justify-center items-center px-6 py-3.5 border border-transparent text-base font-medium rounded-xl text-white bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 shadow-sm hover:shadow transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 dark:focus:ring-offset-gray-800"
+                            className="w-full inline-flex justify-center items-center px-6 py-3.5 border border-transparent text-base font-medium rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm hover:shadow transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                         >
                             Return to Home
                         </Link>

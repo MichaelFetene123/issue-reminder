@@ -15,11 +15,11 @@ export default function NavLink({ href, icon, label, isActive }: NavLinkProps) {
       className={cn(
         'flex items-center px-2 py-2 text-sm font-medium rounded-md group',
         isActive
-          ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200'
-          : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+          ? 'bg-primary/10 text-primary'
+          : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
       )}
     >
-      <span className="text-gray-500 dark:text-gray-400 mr-3">{icon}</span>
+      <span className="text-muted-foreground mr-3">{icon}</span>
       <span className="hidden md:inline">{label}</span>
     </Link>
   )

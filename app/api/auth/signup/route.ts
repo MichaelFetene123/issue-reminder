@@ -8,6 +8,18 @@ import { z } from "zod"; // FIXED: Removed the unused standalone 'email' import
 import {v4 as uuidv4} from 'uuid';
 import { sendConfirmationEmail } from "@/lib/utils/email";
 
+
+export type ActionResponse = {
+    success?: boolean;
+    error?: string;
+    errors?: Record<string, string[]> | any;
+    user?: {
+        id: string;
+        email: string;
+    };
+    message?: string;
+}
+
 export async function POST(formData: FormData){
     try {
         const body = {
@@ -76,8 +88,8 @@ export async function POST(formData: FormData){
         }
 
         return NextResponse.json({
-            message: "User registered successfully. Please check your email to verify your account.",
-            user: user // Safely passed without password pollution
+            message: "User registered successfully.",
+            user: user
         });
 
     } catch (error) {

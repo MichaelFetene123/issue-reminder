@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { Timestamp } from '@/components/Timestamp'
 import{ Button} from '@/components/ui/button'
+import { ModeToggle } from '@/components/ModeToggle'
 
 export default async function HomeLayout({
   children,
@@ -10,28 +11,28 @@ export default async function HomeLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="border-b border-gray-200 dark:border-dark-border-subtle bg-white dark:bg-dark-base">
+      <header className="sticky top-0 z-50 bg-muted/80 backdrop-blur-sm ">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-8">
-            <Link href="/" className="text-xl font-bold  hover:text-purple-600">
-              Mode
+            <Link href="/" className="text-xl font-bold hover:text-primary">
+              Home
             </Link>
             <nav className="hidden md:flex gap-6">
               <Link
                 href="/features"
-                className="text-sm font-medium hover:text-purple-600"
+                className="text-sm font-medium hover:text-primary"
               >
                 Features
               </Link>
               <Link
                 href="/pricing"
-                className="text-sm font-medium hover:text-purple-600"
+                className="text-sm font-medium hover:text-primary"
               >
                 Pricing
               </Link>
               <Link
                 href="/faq"
-                className="text-sm font-medium hover:text-purple-600"
+                className="text-sm font-medium hover:text-primary"
               >
                 FAQ
               </Link>
@@ -39,6 +40,8 @@ export default async function HomeLayout({
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center space-x-4">
+              {/* dark mode toggle */}
+              <ModeToggle />
               <Link href="/signin">
                 <Button variant="outline">Sign in</Button>
               </Link>
@@ -52,12 +55,12 @@ export default async function HomeLayout({
 
       <main className="flex-1">{children}</main>
 
-      <footer className="border-t border-gray-200 dark:border-dark-border-subtle bg-white dark:bg-dark-base">
+      <footer className="  bg-muted">
         <div className="container mx-auto px-4 py-8">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
             <div>
               <h3 className="text-lg font-semibold mb-4">Mode</h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 A modern project management tool built with Next.js.
               </p>
             </div>
@@ -67,7 +70,7 @@ export default async function HomeLayout({
                 <li>
                   <Link
                     href="/features"
-                    className="text-sm text-gray-600 hover:text-purple-600"
+                    className="text-sm text-muted-foreground hover:text-primary"
                   >
                     Features
                   </Link>
@@ -75,7 +78,7 @@ export default async function HomeLayout({
                 <li>
                   <Link
                     href="/pricing"
-                    className="text-sm text-gray-600 hover:text-purple-600"
+                    className="text-sm text-muted-foreground hover:text-primary"
                   >
                     Pricing
                   </Link>
@@ -83,7 +86,7 @@ export default async function HomeLayout({
                 <li>
                   <Link
                     href="/faq"
-                    className="text-sm text-gray-600 hover:text-purple-600"
+                    className="text-sm text-muted-foreground hover:text-primary"
                   >
                     FAQ
                   </Link>
@@ -96,7 +99,7 @@ export default async function HomeLayout({
                 <li>
                   <Link
                     href="/docs"
-                    className="text-sm text-gray-600 hover:text-purple-600"
+                    className="text-sm text-muted-foreground hover:text-primary"
                   >
                     Documentation
                   </Link>
@@ -106,7 +109,7 @@ export default async function HomeLayout({
                     href="https://github.com/yourusername/mode"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-gray-600 hover:text-purple-600"
+                    className="text-sm text-muted-foreground hover:text-primary"
                   >
                     GitHub
                   </a>
@@ -119,7 +122,7 @@ export default async function HomeLayout({
                 <li>
                   <Link
                     href="/terms"
-                    className="text-sm text-gray-600 hover:text-purple-600"
+                    className="text-sm text-muted-foreground hover:text-primary"
                   >
                     Terms of Service
                   </Link>
@@ -127,8 +130,8 @@ export default async function HomeLayout({
               </ul>
             </div>
           </div>
-          <div className="mt-8 border-t pt-8 text-center">
-            <p className="text-sm text-gray-600">
+          <div className="mt-8  pt-8 text-center">
+            <p className="text-sm text-muted-foreground">
               &copy; <Timestamp /> Mode. All rights reserved.
             </p>
           </div>

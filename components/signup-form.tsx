@@ -13,24 +13,52 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { House } from "lucide-react"
 import Link from "next/link"
+import { useActionState } from "react"
+import { type ActionResponse } from "@/app/api/auth/signup/route"
+
+const initialState: ActionResponse = {
+  success: false,
+  message: '',
+  errors: undefined,
+}
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
+
+  const signupAction = async (prevState: ActionResponse, formData: FormData) => {
+    try {
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        body: formData,
+      });
+      return await response.json();
+    } catch(error) {
+      return { error: "An unexpected error occurred" };
+    }
+  }
+
+  const [state, formAction, isPending] = useActionState(signupAction, initialState);
+
+  const onSubmit = (formData: FormData) => {
+    formAction(formData);
+  };
+
   return (
     <Card {...props}>
-      <CardHeader>
-        <CardTitle>Create an account</CardTitle>
-        <CardDescription>
-          Enter your information below to create your account
-        </CardDescription>
-      </CardHeader>
+    <CardHeader className="text-center relative">
+          <Link href="/" className="absolute left-6 top-6 text-muted-foreground hover:text-primary transition-colors">
+            <House className="h-5 w-5" />
+            <span className="sr-only">Home</span>
+          </Link>
+          <CardTitle className="text-2xl font-bold">Create account</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Create An your account
+          </p>
+        </CardHeader>
       <CardContent>
-        <form>
+        <form action={onSubmit}>
           <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="name">Full Name</FieldLabel>
-              <Input id="name" type="text" placeholder="John Doe" required />
-            </Field>
             <Field>
               <FieldLabel htmlFor="email">Email</FieldLabel>
               <Input
@@ -38,17 +66,16 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 type="email"
                 placeholder="m@example.com"
                 required
+                name="email"
+
               />
-              <FieldDescription>
-                We&apos;ll use this to contact you. We will not share your email
-                with anyone else.
-              </FieldDescription>
+            
             </Field>
             <Field>
               <FieldLabel htmlFor="password">Password</FieldLabel>
               <Input id="password" type="password" required />
               <FieldDescription>
-                Must be at least 8 characters long.
+                Must be at least 6 characters long.
               </FieldDescription>
             </Field>
             <Field>
@@ -60,7 +87,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             </Field>
             <FieldGroup>
               <Field>
-                <Button type="submit">Create Account</Button>
+                <Button type="submit">{isPending ? "Creating Account..." : "Create Account"}</Button>
                 <Button variant="outline" type="button">
                   Sign up with Google
                 </Button>
