@@ -49,7 +49,10 @@ export async function POST(request: Request){
         // Check if the user already exists
         const existingUser = await prisma.user.findUnique({where: {email}})
         if(existingUser){
-            return NextResponse.json({error: 'Account already exists'}, {status: 400})
+            return NextResponse.json({
+                error: 'Account already exists',
+                errors: { email: ['Account already exists'] }
+            }, {status: 400})
         }
 
         // Hashing password
@@ -92,7 +95,7 @@ export async function POST(request: Request){
             message: "User registered successfully.",
             user: user
         });
-
+            
     } catch (error) {
        console.error('Signup pipeline failure:', error);
        return NextResponse.json({error: 'Failed to create account'}, { status: 500})

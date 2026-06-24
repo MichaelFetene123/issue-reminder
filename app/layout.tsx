@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   description: "remind your issue here !",
 };
 
+import { Toaster } from "@/components/ui/sonner";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,6 +29,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
           {children}
+          <Toaster position="top-center" />
         </ThemeProvider>
       </body>
     </html>

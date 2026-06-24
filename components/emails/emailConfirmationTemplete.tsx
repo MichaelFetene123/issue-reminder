@@ -19,9 +19,7 @@ interface EmailConfirmationTemplateProps {
   verificationUrl: string;
 }
 
-const baseUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "";
+const baseUrl = process.env.NEXT_PUBLIC_URL || "";
 
 export const EmailConfirmationTemplate = ({
   userName,
@@ -33,7 +31,6 @@ export const EmailConfirmationTemplate = ({
       <Body className="bg-[#f6f9fc] font-sans">
         <Preview>Verify your email address for Issue Reminder</Preview>
         <Container className="bg-white mx-auto py-5 pb-12 px-0 max-w-[580px] rounded-[8px] mt-8 shadow-sm">
-          {/* Logo & Header */}
           <Section className="px-8 pt-6 pb-2 text-center">
             <Img
               src={`${baseUrl}/static/issue-reminder-logo.png`}

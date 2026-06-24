@@ -15,11 +15,13 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { House } from "lucide-react"
+import { House, Loader2 } from "lucide-react"
 import Link from "next/link";
 
-import { useActionState, useState } from "react"
+import { useActionState, useState, useEffect } from "react"
+import { toast } from "sonner"
 import { type ActionResponse } from "@/app/api/auth/signup/route"
+import { useRouter } from "next/navigation";
 
 const initialState: ActionResponse = {
   success: false,
@@ -28,7 +30,7 @@ const initialState: ActionResponse = {
 }
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
-
+const router = useRouter()
   const signupAction = async (prevState: ActionResponse, formData: FormData) => {
     try {
       const response = await fetch("/api/auth/signup", {
@@ -36,6 +38,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
         body: formData,
       });
       return await response.json();
+      
     } catch (error) {
       return { error: "An unexpected error occurred" };
     }
@@ -43,6 +46,15 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
 
   const [state, formAction, isPending] = useActionState(signupAction, initialState);
   const [clientError, setClientError] = useState<string>("");
+
+  useEffect(() => {
+    if (state?.error) {
+      toast.error(state.error);
+    } else if (state?.message) {
+      toast.success(state.message);
+      router.push('/registration/pending');
+    }
+  }, [state]);
 
   const onSubmit = (formData: FormData) => {
     const password = formData.get("password");
@@ -119,7 +131,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             </Field>
             <FieldGroup>
               <Field>
-                <Button disabled={isPending} type="submit">{isPending ? "Creating Account..." : "Create Account"}</Button>
+                <Button disabled={isPending} type="submit">{isPending ? <div className="flex justify-center items-center gap-2"><Loader2 className="animate-spin w-5 h-5" /> Creating Account...</div>: "Create Account"}</Button>
                 <Button variant="outline" type="button">
                   Sign up with Google
                 </Button>

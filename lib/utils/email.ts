@@ -5,8 +5,8 @@ import { EmailConfirmationTemplate } from "@/components/emails/emailConfirmation
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASSWORD,
   },
 });
 
@@ -24,7 +24,7 @@ export const sendConfirmationEmail = async (
     );
 
     await transporter.sendMail({
-      from: `Issue Reminder <${process.env.GMAIL_USER}>`,
+      from: `Issue Reminder <${process.env.SMTP_USER}>`,
       to: email,
       subject: "Verify Your Email Address",
       html,
