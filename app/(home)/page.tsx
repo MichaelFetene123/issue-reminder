@@ -1,8 +1,12 @@
 import Link from 'next/link'
 import { Timestamp } from '@/components/Timestamp'
 import { Button } from '@/components/ui/button'
+import { getSession } from '@/lib/auth'
 
 export default async function HomePage() {
+  const session = await getSession();
+  const getStartedLink = session ? "/dashboard" : "/signin";
+
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-1">
@@ -14,13 +18,13 @@ export default async function HomePage() {
                 simplified
               </span>
             </h1>
-            <p className="mt-6 max-w-2xl mx-auto text-lg sm:text-xl text-muted-foreground">
+            <p className="mt-6 max-w-2xl mx-auto text-lg sm:text-xl text-muted-foreground font-sans tracking-tight">
               A minimal and elegant issue tracking tool for modern teams. Manage
               your projects with ease.
             </p>
             <div className="mt-10">
-              <Link href="/signin">
-                <Button size="lg">Get Started</Button>
+              <Link href={getStartedLink}>
+                <Button size="lg">{session ? "Go to Dashboard" : "Get Started"}</Button>
               </Link>
             </div>
           </div>

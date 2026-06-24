@@ -1,11 +1,14 @@
 // @/app/registration/confirm/page.tsx
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { verifyTokenAction } from "@/lib/verifyTokenAction";
 import Link from "next/link";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 
-export default function ConfirmRegistrationPage() {
+function ConfirmRegistrationContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const token = searchParams.get("token");
@@ -13,6 +16,7 @@ export default function ConfirmRegistrationPage() {
     const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
     const [countdown, setCountdown] = useState(3);
     const [progress, setProgress] = useState(100);
+    const hasAttempted = useRef(false);
 
     useEffect(() => {
         if (!token) {
@@ -20,9 +24,11 @@ export default function ConfirmRegistrationPage() {
             return;
         }
 
+        if (hasAttempted.current) return;
+        hasAttempted.current = true;
+
         const confirmRegistration = async () => {
             try {
-                // Call the server action which safely interacts with the DB and sets the session
                 await verifyTokenAction(token);
                 setStatus("success");
             } catch (error) {
@@ -36,10 +42,8 @@ export default function ConfirmRegistrationPage() {
 
     useEffect(() => {
         if (status === "success") {
-            // Start the progress bar animation
             const timeoutId = setTimeout(() => setProgress(0), 50);
 
-            // Update the countdown text and handle redirect
             const intervalId = setInterval(() => {
                 setCountdown((prev) => {
                     if (prev <= 1) {
@@ -59,66 +63,85 @@ export default function ConfirmRegistrationPage() {
     }, [status, router]);
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background">
-            <div className="p-8 text-center bg-card border border-border rounded-2xl shadow-xl max-w-md w-full transition-all duration-300">
+        <div className="flex min-h-screen items-center justify-center p-4">
+            <Card className="w-full max-w-md shadow-sm border-none text-center">
                 {status === "loading" && (
-                    <div className="flex flex-col items-center">
-                        <div className="relative w-16 h-16 mb-6">
-                            <div className="absolute inset-0 rounded-full border-4 border-border"></div>
-                            <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+                    <CardHeader className="space-y-4">
+                        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                         </div>
-                        <h2 className="text-2xl font-bold text-foreground mb-2">Verifying Email...</h2>
-                        <p className="text-muted-foreground">Please wait while we securely confirm your registration.</p>
-                    </div>
+                        <div className="space-y-2">
+                            <CardTitle className="text-2xl font-semibold tracking-tight">Verifying Email</CardTitle>
+                            <CardDescription className="text-base">
+                                Please wait while we securely confirm your registration.
+                            </CardDescription>
+                        </div>
+                    </CardHeader>
                 )}
 
                 {status === "success" && (
-                    <div className="flex flex-col items-center">
-                        <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-6 shadow-sm ring-8 ring-primary/20">
-                            <svg className="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                        </div>
-                        <h2 className="text-2xl font-bold text-foreground mb-2">Email Verified Successfully!</h2>
-                        <p className="text-muted-foreground mb-8">Your account is now active. Welcome aboard!</p>
-                        
-                        <div className="w-full bg-secondary rounded-full h-2 mb-6 overflow-hidden">
-                            <div 
-                                className="bg-primary h-full rounded-full" 
-                                style={{ width: `${progress}%`, transition: 'width 3s linear' }}
-                            ></div>
-                        </div>
-                        
-                        <p className="text-sm text-muted-foreground mb-8 font-medium">Redirecting to dashboard in {countdown}...</p>
-                        
-                        <Link 
-                            href="/" 
-                            className="w-full inline-flex justify-center items-center px-6 py-3.5 border border-transparent text-base font-medium rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm hover:shadow transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                        >
-                            Go to Home Now
-                        </Link>
-                    </div>
+                    <>
+                        <CardHeader className="space-y-4">
+                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                                <CheckCircle2 className="h-8 w-8 text-primary" />
+                            </div>
+                            <div className="space-y-2">
+                                <CardTitle className="text-2xl font-semibold tracking-tight">Email Verified!</CardTitle>
+                                <CardDescription className="text-base">
+                                    Your account is now active. Welcome aboard!
+                                </CardDescription>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
+                                <div 
+                                    className="bg-primary h-full rounded-full" 
+                                    style={{ width: `${progress}%`, transition: 'width 3s linear' }}
+                                ></div>
+                            </div>
+                            <p className="text-sm text-muted-foreground font-medium">Redirecting to dashboard in {countdown}...</p>
+                        </CardContent>
+                        <CardFooter>
+                            <Button className="w-full rounded-lg h-11 font-semibold" asChild>
+                                <Link href="/">Go to Home Now</Link>
+                            </Button>
+                        </CardFooter>
+                    </>
                 )}
 
                 {status === "error" && (
-                    <div className="flex flex-col items-center">
-                        <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center mb-6 shadow-sm ring-8 ring-destructive/20">
-                            <svg className="w-10 h-10 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </div>
-                        <h2 className="text-2xl font-bold text-foreground mb-2">Verification Failed</h2>
-                        <p className="text-muted-foreground mb-8">The link may be invalid or expired. Please request a new verification email.</p>
-                        
-                        <Link 
-                            href="/" 
-                            className="w-full inline-flex justify-center items-center px-6 py-3.5 border border-transparent text-base font-medium rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm hover:shadow transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                        >
-                            Return to Home
-                        </Link>
-                    </div>
+                    <>
+                        <CardHeader className="space-y-4">
+                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
+                                <XCircle className="h-8 w-8 text-destructive" />
+                            </div>
+                            <div className="space-y-2">
+                                <CardTitle className="text-2xl font-semibold tracking-tight">Verification Failed</CardTitle>
+                                <CardDescription className="text-base">
+                                    The link may be invalid or expired. Please request a new verification email.
+                                </CardDescription>
+                            </div>
+                        </CardHeader>
+                        <CardFooter>
+                            <Button variant="secondary" className="w-full rounded-lg h-11 font-semibold" asChild>
+                                <Link href="/">Return to Home</Link>
+                            </Button>
+                        </CardFooter>
+                    </>
                 )}
-            </div>
+            </Card>
         </div>
+    );
+}
+
+export default function ConfirmRegistrationPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex min-h-screen items-center justify-center p-4">
+                <div className="text-muted-foreground">Loading...</div>
+            </div>
+        }>
+            <ConfirmRegistrationContent />
+        </Suspense>
     );
 }

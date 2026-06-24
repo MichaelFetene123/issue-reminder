@@ -52,6 +52,9 @@ const router = useRouter()
       toast.error(state.error);
     } else if (state?.message) {
       toast.success(state.message);
+      if (state.user?.email) {
+        sessionStorage.setItem("pendingRegistrationEmail", state.user.email);
+      }
       router.push('/registration/pending');
     }
   }, [state]);

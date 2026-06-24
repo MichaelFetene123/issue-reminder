@@ -24,5 +24,6 @@
     "editor.formatOnSave": true,
     "[prisma]": {
         "editor.defaultFormatter": "Prisma.prisma"
-    }
+    },
+    "css.lint.unknownAtRules": "ignore"
 }
