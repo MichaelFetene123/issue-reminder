@@ -5,7 +5,7 @@ import { createSession } from "@/lib/auth";
 import { hashPassword } from "@/lib/crypto";
 import { signupSchema } from "@/lib/validationSchema";
 import { z } from "zod"; // FIXED: Removed the unused standalone 'email' import
-import {v4 as uuidv4} from 'uuid';
+import { randomBytes } from 'crypto';
 import { sendConfirmationEmail } from "@/lib/utils/email";
 
 
@@ -59,14 +59,16 @@ export async function POST(request: Request){
         const hashedPassowrd = await hashPassword(password);
 
 
-        // verification token
-        const emailToken = uuidv4()
+        // verification token (expires in 24 hours, cryptographically secure 256-bit entropy)
+        const emailToken = randomBytes(32).toString('hex');
+        const emailTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
         const user = await prisma.user.create({
             data: {
                 email,
                 password: hashedPassowrd,
                 emailToken,
+                emailTokenExpiry,
             },
             // Only fetch these specific fields back from the database to avoid password leaks
             select: {

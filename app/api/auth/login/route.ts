@@ -40,6 +40,14 @@ export async function POST(formData: FormData) {
             return NextResponse.json({ error: 'Invalid authentication credentials.' }, { status: 401 });
         }
 
+        // Prevent sign-in until email is verified
+        if (!user.emailVerifid) {
+            return NextResponse.json(
+                { error: 'Please verify your email before signing in. Check your inbox.' },
+                { status: 403 }
+            );
+        }
+
         // Establishes sliding cookies and gives frontend its short-lived tracking token
         const accessToken = await createSession(user.id);
         if (!accessToken) {

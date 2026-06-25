@@ -12,16 +12,24 @@ export async function verifyTokenAction(token: string) {
         throw new Error("Invalid or expired token");
     }
 
-    // 2. Update user to verified and remove the token
+    // 2. Check if the token has expired (24-hour window)
+    if (!user.emailTokenExpiry || user.emailTokenExpiry < new Date()) {
+        // Free up the email immediately so the user can re-register
+        await prisma.user.delete({ where: { id: user.id } });
+        throw new Error("Your verification link is invalid or expired. Please sign up again to receive a new link.");
+    }
+
+    // 3. Update user to verified and clear the token + expiry
     await prisma.user.update({
         where: { id: user.id },
         data: {
             emailToken: "",
+            emailTokenExpiry: null,
             emailVerifid: true,
         }
     });
 
-    // 3. Create session (since we removed it from the signup route)
+    // 4. Create session (since we removed it from the signup route)
     // This correctly sets the cookie on the server-side
     const accessToken = await createSession(user.id);
     

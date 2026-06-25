@@ -15,7 +15,7 @@ function ConfirmRegistrationContent() {
     
     const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
     const [countdown, setCountdown] = useState(3);
-    const [progress, setProgress] = useState(100);
+    const [progress, setProgress] = useState(0);
     const hasAttempted = useRef(false);
 
     useEffect(() => {
@@ -42,7 +42,7 @@ function ConfirmRegistrationContent() {
 
     useEffect(() => {
         if (status === "success") {
-            const timeoutId = setTimeout(() => setProgress(0), 50);
+            const timeoutId = setTimeout(() => setProgress(100), 50);
 
             const intervalId = setInterval(() => {
                 setCountdown((prev) => {
