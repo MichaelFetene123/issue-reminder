@@ -38,7 +38,7 @@ export default function PendingPage() {
                     <div className="space-y-2">
                         <CardTitle className="text-2xl font-semibold tracking-tight">Check your email</CardTitle>
                         <CardDescription className="text-base leading-6  text-muted-foreground">
-                            We sent a verification code to <span className="font-light tracking-tight text-sm"> {email}</span>
+                            We sent a verification link to <span className="font-light tracking-tight text-sm"> {email}</span>
                         </CardDescription>
                     </div>
                 </CardHeader>
@@ -56,7 +56,7 @@ export default function PendingPage() {
                     )}
                 </CardContent>
                 <CardDescription className="flex justify-center tracking-tight items-center pb-6">
-                    <span>Didn't receive the email? <Link href="/registration/resend" className="text-foreground hover:underline">Resend code</Link></span>
+                    <span>Didn't receive the email? <Link href="/registration/resend" className="text-foreground hover:underline">Resend verification link</Link></span>
                 </CardDescription>
             </Card>
         </div>
