@@ -48,6 +48,10 @@ const router = useRouter()
   const [clientError, setClientError] = useState<string>("");
 
   useEffect(() => {
+    if (state?.errors) {
+      // Field-level validation errors — shown inline, no toast needed
+      return;
+    }
     if (state?.error) {
       toast.error(state.error);
     } else if (state?.message) {
@@ -85,7 +89,7 @@ const router = useRouter()
         </p>
       </CardHeader>
       <CardContent>
-        <form action={onSubmit}>
+        <form action={onSubmit} noValidate>
           <FieldGroup>
             {state?.message && state.success && (
               <div className="rounded-md bg-primary/15 p-3 text-sm font-medium text-primary">
@@ -114,7 +118,7 @@ const router = useRouter()
                 aria-invalid={!!state?.errors?.password}
               />
               <FieldDescription>
-                Must be at least 6 characters long.
+                Min. 8 chars at least one special character.
               </FieldDescription>
               {state?.errors?.password && <FieldError>{state.errors.password[0]}</FieldError>}
             </Field>
@@ -129,7 +133,7 @@ const router = useRouter()
                 required 
                 aria-invalid={!!clientError}
               />
-              <FieldDescription>Please confirm your password.</FieldDescription>
+    
               {clientError && <FieldError>{clientError}</FieldError>}
             </Field>
             <FieldGroup>

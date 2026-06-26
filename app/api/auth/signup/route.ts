@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/auth";
 import { hashPassword } from "@/lib/crypto";
 import { signupSchema } from "@/lib/validationSchema";
-import { z } from "zod"; // FIXED: Removed the unused standalone 'email' import
 import { randomBytes } from 'crypto';
 import { sendConfirmationEmail } from "@/lib/utils/email";
 
@@ -30,17 +29,12 @@ export async function POST(request: Request){
 
         const validation = signupSchema.safeParse(body)
 
-        if(!validation.success){
-            // Pass the error directly to the top-level flattenError function
-            const flattened = z.flattenError(validation.error); //
-            
-            // Get the first error from email, or first error from password, or a fallback string
-            const firstError = 
-                flattened.fieldErrors.email?.[0] || 
-                flattened.fieldErrors.password?.[0] || 
-                "Invalid input data";
-                
-             return NextResponse.json({error: firstError}, {status: 400})
+        if (!validation.success) {
+            const fieldErrors = validation.error.flatten().fieldErrors;
+            return NextResponse.json(
+                { error: 'Validation failed', errors: fieldErrors },
+                { status: 422 }
+            );
         }
 
         const validatedData = validation.data

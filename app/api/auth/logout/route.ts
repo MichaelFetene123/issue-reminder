@@ -22,3 +22,10 @@ export async function POST() {
         return NextResponse.json({ error: 'Failed to log out' }, { status: 500 })
     }
 }
+
+// Used by server components via redirect("/api/auth/logout")
+// Clears the session cookie and sends the browser to the home page.
+export async function GET(request: Request) {
+    await deleteSession();
+    return NextResponse.redirect(new URL('/', request.url));
+}

@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton"
 
-export function DashboardSkeleton() {
+export function DashboardPageSkeleton() {
   return (
     <div className="flex items-center gap-4">
       <Skeleton className="h-12 w-12 rounded-full" />

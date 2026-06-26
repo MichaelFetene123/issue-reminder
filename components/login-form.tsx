@@ -1,3 +1,4 @@
+"use client"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -10,16 +11,68 @@ import {
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { House } from 'lucide-react';
+import { House, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useActionState, useEffect } from "react"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation";
+
+// Define the response type matching the API
+export type LoginActionResponse = {
+  success?: boolean;
+  error?: string;
+  errors?: Record<string, string[]> | any;
+  message?: string;
+  accessToken?: string;
+  user?: any;
+}
+
+const initialState: LoginActionResponse = {
+  success: false,
+  message: '',
+  errors: undefined,
+}
+
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const router = useRouter()
+
+  const loginAction = async (prevState: LoginActionResponse, formData: FormData) => {
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        body: formData,
+      });
+      return await response.json();
+    } catch (error) {
+      return { error: "An unexpected error occurred" };
+    }
+  }
+
+  const [state, formAction, isPending] = useActionState(loginAction, initialState);
+
+  useEffect(() => {
+    if (state?.errors) {
+      // Field-level validation errors — shown inline, no toast needed
+      return;
+    }
+    if (state?.error) {
+      toast.error(state.error);
+    } else if (state?.message) {
+      toast.success(state.message);
+      // Push to dashboard and refresh the router cache so Server Components (like NavUser) re-read the session cookie
+      router.push('/dashboard');
+      router.refresh();
+    }
+  }, [state]);
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -34,16 +87,19 @@ export function LoginForm({
           </p>
         </CardHeader>
         <CardContent>
-          <form>
+          <form action={formAction} noValidate>
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder="m@example.com"
                   required
+                  aria-invalid={!!state?.errors?.email}
                 />
+                {state?.errors?.email && <FieldError>{state.errors.email[0]}</FieldError>}
               </Field>
               <Field>
                 <div className="flex items-center">
@@ -55,10 +111,19 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input 
+                  id="password" 
+                  name="password"
+                  type="password" 
+                  required 
+                  aria-invalid={!!state?.errors?.password}
+                />
+                {state?.errors?.password && <FieldError>{state.errors.password[0]}</FieldError>}
               </Field>
               <Field>
-                <Button type="submit">Login</Button>
+                <Button disabled={isPending} type="submit">
+                  {isPending ? <div className="flex justify-center items-center gap-2"><Loader2 className="animate-spin w-5 h-5" /> Logging in...</div> : "Login"}
+                </Button>
                 <Button variant="outline" type="button">
                   Login with Google
                 </Button>

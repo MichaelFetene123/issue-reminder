@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { verifyTokenAction } from "@/lib/verifyTokenAction";
 import Link from "next/link";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 
@@ -48,7 +48,7 @@ function ConfirmRegistrationContent() {
                 setCountdown((prev) => {
                     if (prev <= 1) {
                         clearInterval(intervalId);
-                        router.replace("/");
+                        router.replace("/dashboard");
                         return 0;
                     }
                     return prev - 1;
@@ -101,11 +101,11 @@ function ConfirmRegistrationContent() {
                             </div>
                             <p className="text-sm text-muted-foreground font-medium">Redirecting to dashboard in {countdown}...</p>
                         </CardContent>
-                        <CardFooter>
+                        <CardContent>
                             <Button className="w-full rounded-lg h-11 font-semibold" asChild>
                                 <Link href="/">Go to Home Now</Link>
                             </Button>
-                        </CardFooter>
+                        </CardContent>
                     </>
                 )}
 
@@ -122,11 +122,11 @@ function ConfirmRegistrationContent() {
                                 </CardDescription>
                             </div>
                         </CardHeader>
-                        <CardFooter>
+                        <CardContent>
                             <Button variant="secondary" className="w-full rounded-lg h-11 font-semibold" asChild>
                                 <Link href="/">Return to Home</Link>
                             </Button>
-                        </CardFooter>
+                        </CardContent>
                     </>
                 )}
             </Card>

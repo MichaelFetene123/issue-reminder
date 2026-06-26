@@ -5,6 +5,9 @@ import { getSession } from '@/lib/auth'
 
 export default async function HomePage() {
   const session = await getSession();
+  // Trust the JWT directly — login already enforces emailVerifid before issuing tokens.
+  // A DB lookup here would add latency on every home page render for logged-in users.
+  // The dashboard layout handles the edge case of a user deleted after login.
   const getStartedLink = session ? "/dashboard" : "/signin";
 
   return (

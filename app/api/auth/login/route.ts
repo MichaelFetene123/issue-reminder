@@ -3,10 +3,10 @@ import { NextResponse } from "next/server";
 import { verifyPassword } from "@/lib/crypto"; // From your isolated file
 import { createSession } from "@/lib/auth";
 import { loginSchema } from "@/lib/validationSchema";
-import {z} from "zod";
 
-export async function POST(formData: FormData) {
+export async function POST(request: Request) {
     try {
+        const formData = await request.formData();
         const body = {
             email: formData.get('email'),
             password: formData.get('password')
@@ -14,14 +14,12 @@ export async function POST(formData: FormData) {
         
         const validation = loginSchema.safeParse(body)
 
-        if(!validation.success){
-            const flattened = z.flattenError(validation.error)
-            const firstError = 
-                flattened.fieldErrors.email?.[0] ||
-                flattened.fieldErrors.password?.[0] ||
-                "Invalid input data"
-
-                return NextResponse.json({error: firstError}, {status: 400})
+        if (!validation.success) {
+            const fieldErrors = validation.error.flatten().fieldErrors;
+            return NextResponse.json(
+                { error: 'Validation failed', errors: fieldErrors },
+                { status: 422 }
+            );
         }
 
         const validatedData = validation.data

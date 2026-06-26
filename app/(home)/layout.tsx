@@ -1,53 +1,50 @@
 
 import Link from 'next/link'
 import { Timestamp } from '@/components/Timestamp'
-import{ Button} from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { ModeToggle } from '@/components/ModeToggle'
+import { getSession } from '@/lib/auth'
+import { LogoutAction } from '@/components/client/LogoutAction'
 
 export default async function HomeLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const session = await getSession()
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 bg-muted/80 backdrop-blur-sm ">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-8">
             <Link href="/" className="text-xl font-bold hover:text-primary">
-              Home
+              Issue <span className='hidden md:inline'>Reminder</span>
             </Link>
-            <nav className="hidden md:flex gap-6">
-              <Link
-                href="/features"
-                className="text-sm font-medium hover:text-primary"
-              >
-                Features
+            {session && (
+              <Link href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors hidden md:block">
+                Dashboard
               </Link>
-              <Link
-                href="/pricing"
-                className="text-sm font-medium hover:text-primary"
-              >
-                Pricing
-              </Link>
-              <Link
-                href="/faq"
-                className="text-sm font-medium hover:text-primary"
-              >
-                FAQ
-              </Link>
-            </nav>
+            )}
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center space-x-4">
               {/* dark mode toggle */}
               <ModeToggle />
-              <Link href="/signin">
-                <Button variant="outline">Sign in</Button>
-              </Link>
-              <Link href="/signup">
-                <Button>Sign up</Button>
-              </Link>
+              {session ? (
+                <LogoutAction className="cursor-pointer">
+                  <Button>Log out</Button>
+                </LogoutAction>
+              ) : (
+                <>
+                  <Link href="/signin">
+                    <Button variant="outline">Sign in</Button>
+                  </Link>
+                  <Link href="/signup">
+                    <Button>Sign up</Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -92,7 +89,7 @@ export default async function HomeLayout({
                   </Link>
                 </li>
               </ul>
-            </div>  
+            </div>
             <div>
               <h3 className="text-sm font-semibold mb-4">Resources</h3>
               <ul className="space-y-2">

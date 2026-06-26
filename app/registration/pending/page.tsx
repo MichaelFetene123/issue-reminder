@@ -1,9 +1,12 @@
 "use client"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Mail } from "lucide-react";
+import { Mail, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { resendTokenAction } from "@/lib/resendTokenAction";
 
 const getEmailInboxUrl = (email: string) => {
     if (!email) return null;
@@ -17,8 +20,13 @@ const getEmailInboxUrl = (email: string) => {
 };
 
 export default function PendingPage() {
+    const router = useRouter();
     const [email, setEmail] = useState<string>("user@gmail.com");
     const [inboxUrl, setInboxUrl] = useState<string | null>(null);
+
+    // Resend state
+    const [isPending, startTransition] = useTransition();
+    const [cooldown, setCooldown] = useState(0);
 
     useEffect(() => {
         const storedEmail = sessionStorage.getItem("pendingRegistrationEmail");
@@ -27,6 +35,35 @@ export default function PendingPage() {
             setInboxUrl(getEmailInboxUrl(storedEmail));
         }
     }, []);
+
+    // Cooldown timer logic
+    useEffect(() => {
+        if (cooldown > 0) {
+            const timerId = setTimeout(() => setCooldown(c => c - 1), 1000);
+            return () => clearTimeout(timerId);
+        }
+    }, [cooldown]);
+
+    const handleResend = () => {
+        if (cooldown > 0 || isPending) return;
+
+        startTransition(async () => {
+            const result = await resendTokenAction(email);
+
+            if (result.alreadyVerified) {
+                toast.success("Email is already verified");
+                router.push("/dashboard");
+                return;
+            }
+
+            if (result.error) {
+                toast.error(result.error);
+            } else if (result.success) {
+                toast.success("Verification email resent!");
+                setCooldown(60); // start 60s cooldown
+            }
+        });
+    };
 
     return (
         <div className="flex min-h-screen items-center justify-center p-4">
@@ -51,12 +88,27 @@ export default function PendingPage() {
                         </Button>
                     ) : (
                         <Button className="w-full rounded-lg h-11 font-semibold" asChild>
-                            <Link href="/login">Verify Email</Link>
+                            <Link href="/signup">Verify Email</Link>
                         </Button>
                     )}
                 </CardContent>
                 <CardDescription className="flex justify-center tracking-tight items-center pb-6">
-                    <span>Didn't receive the email? <Link href="/registration/resend" className="text-foreground hover:underline">Resend verification link</Link></span>
+                    <span>
+                        Didn't receive the email?{" "}
+                        <button
+                            onClick={handleResend}
+                            disabled={isPending || cooldown > 0}
+                            className="text-foreground hover:underline disabled:text-muted-foreground disabled:no-underline disabled:cursor-not-allowed inline-flex items-center transition-colors"
+                        >
+                            {isPending ? (
+                                <><Loader2 className="mr-2 h-3 w-3 animate-spin" /> Sending...</>
+                            ) : cooldown > 0 ? (
+                                `Resend verification link (${cooldown}s)`
+                            ) : (
+                                "Resend verification link"
+                            )}
+                        </button>
+                    </span>
                 </CardDescription>
             </Card>
         </div>
