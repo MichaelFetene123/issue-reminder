@@ -8,15 +8,17 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  password     String
-  emailVerifid Boolean  @default(false)
-  emailToken   String   @default("")
+  id               String    @id @default(cuid())
+  email            String    @unique
+  password         String
+  emailVerifid     Boolean   @default(false)
+  emailToken       String    @default("")
   emailTokenExpiry DateTime?
   createdAt        DateTime  @default(now())
-  updatedAt    DateTime @updatedAt
-  
+  updatedAt        DateTime  @updatedAt
+
+  issues           Issue[]
+
   @@map("users")
 }
 
@@ -28,6 +30,9 @@ model Issue {
   status      IssueStatus
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
+
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("issues")
 }
