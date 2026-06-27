@@ -56,7 +56,7 @@ export default function NewIssuePage() {
 
       {/* Form card */}
       <Card className="shadow-sm">
-        <CardHeader className="border-b pb-4">
+        <CardHeader className="border-b border-border">
           <CardTitle className="text-base font-semibold">Issue Details</CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
