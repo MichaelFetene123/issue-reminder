@@ -32,3 +32,14 @@ export const loginSchema = z.object({
 export type SignupInput = z.infer<typeof signupSchema>
 export type LoginInput = z.infer<typeof loginSchema>
 
+
+
+
+export const issueSchema = z.object({
+    title: z.string().min(1, 'Title is required'),
+    description: z.string().min(1, 'Description is required'),
+    status: z.enum(['BACKLOG', 'TODO', 'IN_PROGRESS', 'DONE']),
+    priority: z.enum(['LOW', 'MEDIUM', 'HIGH']),
+})
+
+export type IssueInput = z.infer<typeof issueSchema>
