@@ -40,3 +40,17 @@ export async function POST(request: Request){
     return NextResponse.json(createdIssue, {status: 201});
 
 }
+
+
+export async function GET (request: Request){
+ const session = await getSession();
+    if (!session) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const issues = await prisma.issue.findMany({
+        orderBy: { createdAt: 'desc' },
+    });
+
+    return NextResponse.json(issues, { status: 200 });
+}

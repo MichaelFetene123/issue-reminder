@@ -43,3 +43,18 @@ export const issueSchema = z.object({
 })
 
 export type IssueInput = z.infer<typeof issueSchema>
+
+
+
+export const STATUS_OPTIONS = [
+  { value: 'BACKLOG', label: 'Backlog', color: 'text-slate-400' },
+  { value: 'TODO', label: 'To Do', color: 'text-blue-400' },
+  { value: 'IN_PROGRESS', label: 'In Progress', color: 'text-amber-400' },
+  { value: 'DONE', label: 'Done', color: 'text-emerald-400' },
+]
+
+export const PRIORITY_OPTIONS = [
+  { value: 'LOW', label: 'Low', color: 'text-slate-400' },
+  { value: 'MEDIUM', label: 'Medium', color: 'text-amber-400' },
+  { value: 'HIGH', label: 'High', color: 'text-red-400' },
+]
