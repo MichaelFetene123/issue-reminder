@@ -29,6 +29,7 @@ export function DeleteIssueButton({ id }: { id: string }) {
     try {
       await deleteOneIssue(id)
       router.refresh()
+      router.push('/dashboard')
       toast.success('Issue deleted successfully')
       setIsOpen(false)
     } catch (error) {

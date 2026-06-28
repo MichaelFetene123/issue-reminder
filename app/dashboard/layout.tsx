@@ -4,6 +4,8 @@ import { DashboardPageSkeleton } from "@/components/skeleton/DashboardPageSkelet
 import { getSession } from "@/lib/auth"
 import { redirect } from "next/navigation"
 
+export const dynamic = "force-dynamic"
+
 interface childrenProps {
     children: React.ReactNode
 }

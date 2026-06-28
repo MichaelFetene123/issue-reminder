@@ -3,6 +3,8 @@ import { Timestamp } from '@/components/Timestamp'
 import { Button } from '@/components/ui/button'
 import { getSession } from '@/lib/auth'
 
+export const dynamic = "force-dynamic"
+
 export default async function HomePage() {
   const session = await getSession();
   // Trust the JWT directly — login already enforces emailVerifid before issuing tokens.
