@@ -26,7 +26,7 @@ export default async function HomePage() {
               your projects with ease.
             </p>
             <div className="mt-10">
-              <Link href={getStartedLink}>
+              <Link href={getStartedLink} prefetch={true}>
                 <Button size="lg">{session ? "Go to Dashboard" : "Get Started"}</Button>
               </Link>
             </div>

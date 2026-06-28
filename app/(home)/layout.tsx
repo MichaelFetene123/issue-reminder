@@ -22,7 +22,7 @@ export default async function HomeLayout({
               Issue <span className='hidden md:inline'>Reminder</span>
             </Link>
             {session && (
-              <Link href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors hidden md:block">
+              <Link href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors hidden md:block" prefetch={true}>
                 Dashboard
               </Link>
             )}

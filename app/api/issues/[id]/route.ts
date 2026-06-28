@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { issueSchema } from "@/lib/validationSchema";
+import { revalidatePath } from "next/cache";
 
 
 export async function GET(
@@ -26,7 +27,9 @@ export async function GET(
     return NextResponse.json(issue, { status: 200 });
 }
 
-export async function PUT(
+
+
+export async function PATCH(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
@@ -64,16 +67,12 @@ export async function PUT(
         where: { id },
         data: { title, description, status, priority },
     });
+    revalidatePath(`/dashboard/issues/${id}`);
+    revalidatePath('/dashboard');
     return NextResponse.json(updatedIssue, { status: 200 });
 }
 
-// PATCH is an alias for PUT (partial update via IssueForm)
-export async function PATCH(
-    request: Request,
-    { params }: { params: Promise<{ id: string }> }
-) {
-    return PUT(request, { params });
-}
+
 
 export async function DELETE(
     request: Request,
@@ -92,5 +91,6 @@ export async function DELETE(
     }
 
     await prisma.issue.delete({ where: { id } });
+    revalidatePath('/dashboard');
     return NextResponse.json({ message: 'Issue deleted successfully' }, { status: 200 });
 }

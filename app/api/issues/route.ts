@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { issueSchema } from "@/lib/validationSchema";
 import { getSession } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 
 
 export async function POST(request: Request){
@@ -37,6 +38,8 @@ export async function POST(request: Request){
             userId: session.userId,
         }
     });
+
+    revalidatePath('/dashboard');
     return NextResponse.json(createdIssue, {status: 201});
 
 }

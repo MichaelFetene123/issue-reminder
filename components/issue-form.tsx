@@ -82,7 +82,18 @@ export default function IssueForm({ issue, isEditing = false }: IssueFormProps) 
 
       const response = await fetch(url, { method, body: formData })
       const data = await response.json()
-      return data
+      if (!response.ok) {
+        return data
+      }
+
+      const message = isEditing ? 'Issue updated successfully.' : 'Issue created successfully.'
+      toast.success(message)
+      router.push(isEditing ? `/dashboard/issues/${issue!.id}` : '/dashboard')
+      router.refresh()
+
+      return {
+        success: true,
+      }
     } catch {
       return { error: 'An unexpected error occurred. Please try again.' }
     }
@@ -95,13 +106,6 @@ export default function IssueForm({ issue, isEditing = false }: IssueFormProps) 
 
     if (state?.error) {
       toast.error(state.error)
-    } else if (state?.success && state?.message) {
-      toast.success(state.message)
-      if (!isEditing) {
-        router.push('/dashboard')
-      } else {
-        router.refresh()
-      }
     }
   }, [state])
 
@@ -115,13 +119,6 @@ export default function IssueForm({ issue, isEditing = false }: IssueFormProps) 
         </div>
       )}
 
-      {/* Success banner */}
-      {state?.success && state?.message && (
-        <div className="flex items-start gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-600 dark:text-emerald-400">
-          <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
-          <p>{state.message}</p>
-        </div>
-      )}
 
       <FieldGroup>
         {/* Title */}
@@ -133,7 +130,7 @@ export default function IssueForm({ issue, isEditing = false }: IssueFormProps) 
           <Input
             id="title"
             name="title"
-            placeholder="Give this issue a clear, concise title…"
+            placeholder="Issue title…"
             defaultValue={issue?.title ?? ''}
             required
             minLength={3}
@@ -157,7 +154,7 @@ export default function IssueForm({ issue, isEditing = false }: IssueFormProps) 
           <Textarea
             id="description"
             name="description"
-            placeholder="Describe the issue in detail — steps to reproduce, expected vs. actual behaviour, etc."
+            placeholder="Describe the issue in detail"
             rows={5}
             defaultValue={issue?.description ?? ''}
             disabled={isPending}
@@ -255,7 +252,7 @@ export default function IssueForm({ issue, isEditing = false }: IssueFormProps) 
           size="sm"
           onClick={() => router.back()}
           disabled={isPending}
-          className="gap-1.5"
+          className="gap-1.5 hover:bg-accent hover:text-accent-foreground"
         >
           <ArrowLeft className="size-3.5" />
           Cancel

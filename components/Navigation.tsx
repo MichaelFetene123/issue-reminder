@@ -5,8 +5,13 @@ import { Suspense } from 'react'
 import NavLink from './NavLink'
 import NavUser from './NavUser'
 import { NavUserSkeleton } from './skeleton/nav-user-skeleton'
+import { getIssueCount } from '@/lib/queries/issue-queries'
 
-export default function Navigation() {
+export default async function Navigation() {
+  const issueCount = await getIssueCount();
+
+  const newIssueLabel = issueCount === 0 ? "Create Issue" : "New Issue";
+
   return (
     <aside className="fixed inset-y-0 left-0 w-16 md:w-64 bg-background shadow-md z-10 flex flex-col py-4 px-2 md:px-4">
       {/* Logo / Title */}
@@ -27,7 +32,7 @@ export default function Navigation() {
         <NavLink
           href="/dashboard/issues/new"
           icon={<PlusIcon size={20} />}
-          label="New Issue"
+          label={newIssueLabel}
         />
       </nav>
 

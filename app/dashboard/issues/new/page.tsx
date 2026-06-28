@@ -1,42 +1,14 @@
 import { Suspense } from 'react'
 import IssueForm from '@/components/issue-form'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { CircleDot, Loader2 } from 'lucide-react'
+import { CircleDot } from 'lucide-react'
+import { FormSkeleton } from '@/components/skeleton/issue-form-skeleton'
 
 export const metadata = {
   title: 'Create New Issue · Issue Reminder',
   description: 'Report a new issue and track it through to resolution.',
 }
 
-function FormSkeleton() {
-  return (
-    <div className="space-y-6 animate-pulse">
-      <div className="space-y-2">
-        <div className="h-4 w-16 rounded bg-muted" />
-        <div className="h-10 w-full rounded-lg bg-muted" />
-        <div className="h-3 w-44 rounded bg-muted" />
-      </div>
-      <div className="space-y-2">
-        <div className="h-4 w-24 rounded bg-muted" />
-        <div className="h-28 w-full rounded-lg bg-muted" />
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <div className="h-4 w-14 rounded bg-muted" />
-          <div className="h-10 w-full rounded-lg bg-muted" />
-        </div>
-        <div className="space-y-2">
-          <div className="h-4 w-16 rounded bg-muted" />
-          <div className="h-10 w-full rounded-lg bg-muted" />
-        </div>
-      </div>
-      <div className="flex justify-between pt-2">
-        <div className="h-8 w-20 rounded-lg bg-muted" />
-        <div className="h-8 w-28 rounded-lg bg-muted" />
-      </div>
-    </div>
-  )
-}
 
 export default function NewIssuePage() {
   return (

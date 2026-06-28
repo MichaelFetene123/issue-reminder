@@ -99,7 +99,7 @@ export const getSession = cache(async () => {
     if (!token) return null;
     
     const payload = await verifyToken(token)
-    if (!payload) return null;
+    if (!payload || !payload.userId || typeof payload.userId !== 'string') return null;
     
     return { userId: payload.userId }; // CLEANED UP: Returns a consistent object structure safely
   } catch (error) {
