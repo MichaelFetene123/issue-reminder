@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { deleteOneIssue } from '@/lib/queries/issue-queries'
+import { deleteOneIssue } from '@/lib/actions/queries/issue-queries'
 import { Trash, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import {

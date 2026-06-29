@@ -3,7 +3,7 @@ import IssueForm from '@/components/issue-form'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CircleDot } from 'lucide-react'
 import { FormSkeleton } from '@/components/skeleton/issue-form-skeleton'
-import { getIssueById } from '@/lib/queries/issue-queries'
+import { getIssueById } from '@/lib/actions/queries/issue-queries'
 import { notFound } from 'next/navigation'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {

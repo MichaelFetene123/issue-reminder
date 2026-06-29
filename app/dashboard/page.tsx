@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getIssues, deleteOneIssue } from '@/lib/queries/issue-queries'
+import { getIssues, deleteOneIssue } from '@/lib/actions/queries/issue-queries'
 import { formatRelativeTime } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'

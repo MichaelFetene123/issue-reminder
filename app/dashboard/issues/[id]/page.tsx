@@ -1,4 +1,4 @@
-import { getIssueById } from '@/lib/queries/issue-queries'
+import { getIssueById } from '@/lib/actions/queries/issue-queries'
 import { formatRelativeTime } from '@/lib/utils'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'

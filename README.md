@@ -26,3 +26,274 @@ Database helper scripts are added to `package.json`:
 - `db:seed`
 
 The starter page in `src/app/page.tsx` reads from a basic `User` model so you can verify queries quickly, and `prisma/seed.ts` inserts starter users.
+
+
+
+Next.js Caching vs TanStack Query — What’s the Difference?
+Nuwan Thuduwage
+Nuwan Thuduwage
+
+Follow
+6 min read
+·
+May 4, 2026
+
+
+
+# Next.js Caching vs TanStack Query — What’s the Difference?
+
+
+
+Two powerful caching systems. Two different layers. One confused developer. Let’s fix that.
+
+`Introduction`
+If you’ve been building with Next.js App Router and TanStack Query together, you’ve probably wondered — aren’t these doing the same thing? Both cache data. Both help you avoid unnecessary fetches. Both have invalidation APIs.
+
+But they are fundamentally different tools solving the same problem at different layers of your application.
+
+This article will clear up the confusion once and for all.
+
+`The Core Difference — WHERE the Cache Lives`
+This is the most important thing to understand:
+
+Next.js Cache              TanStack Query Cache
+──────────────────         ──────────────────────
+Lives on the SERVER        Lives in the BROWSER
+Shared across ALL users    Per-user, per-browser tab
+Survives page reload       Lost on page reload
+Controlled by server       Controlled by client code
+Next.js caches data on the server before it ever reaches the browser. TanStack Query caches data in the browser after it has been fetched from the server.
+
+`The Pizza Restaurant Metaphor 🍕`
+Let’s use a metaphor to make this concrete.
+
+Become a Medium member
+Imagine a pizza restaurant:
+
+You (customer)      = your React app
+Kitchen             = your database
+Pre-made pizzas     = Next.js Cache (server side)
+Your order memory   = TanStack Query Cache (client side)
+
+`Next.js Cache` is like the kitchen’s pre-made pizzas:
+
+The kitchen prepares pizzas in advance
+The same pizza is served to every customer who orders it
+The chef decides when to make a fresh one
+All customers benefit from the same cached pizza
+`TanStack Query Cache` is like your personal order memory:
+
+Only you remember your last order
+Other customers have no idea what you ordered
+When you leave the restaurant and come back, you’ve forgotten
+You personally decide when to re-check the menu
+
+`The Three Layers of Caching in a Next.js App`
+When a user visits a page, their request passes through multiple cache layers:
+
+User visits /contacts
+  │
+  ├── Layer 1: Next.js Page Cache
+  │     "Do I have pre-rendered HTML for this page?"
+  │     Invalidated by: revalidatePath("/contacts")
+  │
+  ├── Layer 2: Next.js Data Cache
+  │     "Do I have fresh DB data for getAllContacts()?"
+  │     Invalidated by: updateTag("key") / revalidateTag("key", "max")
+  │
+  ├── Layer 3: TanStack Query Cache (if used)
+  │     "Does the browser already have this data?"
+  │     Invalidated by: invalidateQueries({ queryKey: ["contacts"] })
+  │
+  └── Layer 4: Database
+        "The ground truth"
+Each layer exists to prevent an unnecessary trip to the next layer. The goal is to answer the user’s request as early in the chain as possible.
+
+`Next.js Caching — Server Side`
+Next.js 16 introduced a clean, explicit caching system built around the "use cache" directive.
+
+`Caching Data with "use cache" + cacheTag()`
+// actions.ts
+export async function getAllContacts() {
+  "use cache";               // ← cache this function's result on the server
+  cacheTag("all-contacts");  // ← tag it so we can invalidate it later
+  await dbConnect();
+  return await Contact.find({}).sort({ createdAt: -1 }).lean();
+}
+This result is stored on the server and shared across all users. Every user who calls getAllContacts() gets the same cached result until it's invalidated.
+
+`Invalidating the Cache After a Mutation`
+export async function createContact(formData: FormData) {
+  try {
+    await Contact.create({ ... });
+    updateTag("all-contacts");  // ← bust data cache (immediate)
+    revalidatePath("/contacts"); // ← bust page cache (re-render HTML)
+  } catch (error) {
+    return { status: "error", data: { message: String(error) } };
+  }
+  redirect("/contacts");
+}
+
+`The Two Next.js Cache Layers Explained`
+`Data Cache` — stores the raw result of a server function:
+
+// This DB result is cached
+const contacts = await Contact.find({}).lean();
+`Page Cache` — stores the fully rendered HTML of a page:
+
+<!-- This rendered output is cached -->
+<ul>
+  <li>John Doe</li>
+  <li>Jane Smith</li>
+</ul>
+You need to bust both after a mutation:
+
+updateTag("all-contacts");   // ✅ bust data cache
+revalidatePath("/contacts"); // ✅ bust page cache
+If you only bust the data cache, the page still serves old HTML. If you only bust the page cache, it re-renders but pulls from the stale data cache.
+
+`TanStack Query — Client Side`
+TanStack Query manages server state in the browser. It’s designed for client components that fetch data from APIs.
+
+`Fetching Data with useQuery`
+// ContactList.tsx (client component)
+"use client";
+import { useQuery } from "@tanstack/react-query";
+export function ContactList() {
+  const { data: contacts, isLoading, error } = useQuery({
+    queryKey: ["contacts"],   // ← cache key in the browser
+    queryFn: () => fetch("/api/contacts").then(r => r.json()),
+    staleTime: 1000 * 60 * 5, // ← consider fresh for 5 minutes
+  });
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error loading contacts</div>;
+  return (
+    <ul>
+      {contacts?.map(c => <li key={c._id}>{c.name}</li>)}
+    </ul>
+  );
+}
+This result is stored in the browser and specific to this user’s session.
+
+`Invalidating the Cache After a Mutation`
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+export function ContactForm() {
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: (formData) => fetch("/api/contacts", {
+      method: "POST",
+      body: formData,
+    }),
+    onSuccess: () => {
+      // ← bust the browser cache after successful mutation
+      queryClient.invalidateQueries({ queryKey: ["contacts"] });
+    },
+  });
+}
+
+### Side-by-Side Comparison
+
+| Feature              | Next.js Cache                      | TanStack Query Cache             |
+| -------------------- | ---------------------------------- | -------------------------------- |
+| Lives on             | Server                             | Browser                          |
+| Shared across users  | Yes                                | No                               |
+| Survives page reload | Yes                                | No (unless persisted)            |
+| Used in              | Server Components                  | Client Components                |
+| Cache key            | `cacheTag("key")`                  | `queryKey: ["key"]`              |
+| Invalidation         | `updateTag()` / `revalidatePath()` | `invalidateQueries()`            |
+| Loading states       | No built-in                        | `isLoading`, `isFetching`        |
+| Optimistic updates   | No                                 | Yes                              |
+| Background refetch   | stale-while-revalidate             | refetchOnWindowFocus             |
+| Best for             | DB queries in server components    | API calls in client components   |
+
+
+`When to Use Which`
+`Use Next.js Cache when:`
+// ✅ Server Component fetching from DB directly
+export async function ContactsPage() {
+  "use cache";
+  cacheTag("contacts");
+  const contacts = await Contact.find({}).lean(); // direct DB query
+  return <ContactList contacts={contacts} />;
+}
+
+`You’re in a Server Component
+You’re querying a database directly
+Data is shared across all users (not user-specific)
+You want zero JavaScript sent to the browser for data fetching`
+
+`Use TanStack Query when:`
+// ✅ Client Component fetching from an API
+"use client";
+export function ContactList() {
+  const { data } = useQuery({
+    queryKey: ["contacts"],
+    queryFn: () => fetch("/api/contacts").then(r => r.json()),
+  });
+}
+You’re in a Client Component
+You need loading/error states in the UI
+You need optimistic updates (show changes before server confirms)
+You need real-time or frequent polling
+Data is user-specific (authenticated user’s data)
+You want refetch on window focus
+
+`Can You Use Both Together?`
+Absolutely — and this is a common pattern in production Next.js apps:
+
+// Server Component — initial data from Next.js cache
+export default async function ContactsPage() {
+  const initialContacts = await getAllContacts(); // server cached
+  return (
+    // Pass initial data to client component
+    <ContactListClient initialData={initialContacts} />
+  );
+}
+// Client Component — hydrates with TanStack Query
+"use client";
+export function ContactListClient({ initialData }) {
+  const { data: contacts } = useQuery({
+    queryKey: ["contacts"],
+    queryFn: () => fetch("/api/contacts").then(r => r.json()),
+    initialData, // ← pre-populate with server data (no loading flash)
+    staleTime: 30000,
+  });
+}
+
+`This pattern gives you:`
+
+`Fast initial load` — server renders with cached data, no loading flash
+`Live updates` — TanStack Query keeps the client data fresh
+`Best of both worlds`✅
+
+`Invalidation API Comparison`
+// Next.js — invalidate server cache
+updateTag("contacts-key");       // immediate, Server Actions only
+revalidateTag("contacts-key", "max"); // stale-while-revalidate
+revalidatePath("/contacts");     // bust rendered page HTML
+// TanStack Query — invalidate browser cache
+queryClient.invalidateQueries({ queryKey: ["contacts"] }); // refetch now
+queryClient.setQueryData(["contacts"], newData);           // update directly
+queryClient.removeQueries({ queryKey: ["contacts"] });     // clear entirely
+
+`Summary`
+┌─────────────────────────────────────────────────────────────┐
+│              NEXT.JS CACHE vs TANSTACK QUERY                │
+├────────────────────────┬────────────────────────────────────┤
+│  Next.js Cache         │  TanStack Query Cache              │
+├────────────────────────┼────────────────────────────────────┤
+│  Server side           │  Client side                       │
+│  Shared across users   │  Per user / per browser tab        │
+│  Server Components     │  Client Components                 │
+│  Direct DB queries     │  API / fetch calls                 │
+│  updateTag()           │  invalidateQueries()               │
+│  revalidatePath()      │  setQueryData()                    │
+│  No loading states     │  Full loading/error/success states │
+└────────────────────────┴────────────────────────────────────┘
+`Conclusion`
+Next.js Cache and TanStack Query are not competitors — they’re complementary tools operating at different layers:
+
+Next.js Cache = the server’s memory, shared across all users
+TanStack Query = the browser’s memory, specific to each user
+Use Next.js Cache for server components and direct DB queries. Use TanStack Query for client components and API calls. Use them together for the best possible performance and user experience.
+

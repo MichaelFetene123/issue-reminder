@@ -5,7 +5,7 @@ import { Suspense } from 'react'
 import NavLink from './NavLink'
 import NavUser from './NavUser'
 import { NavUserSkeleton } from './skeleton/nav-user-skeleton'
-import { getIssueCount } from '@/lib/queries/issue-queries'
+import { getIssueCount } from '@/lib/actions/queries/issue-queries'
 
 export default async function Navigation() {
   const issueCount = await getIssueCount();
