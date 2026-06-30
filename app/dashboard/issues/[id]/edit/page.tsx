@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import IssueForm from '@/components/issue-form'
+import IssueForm, { type Issue } from '@/components/issue-form'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CircleDot } from 'lucide-react'
 import { FormSkeleton } from '@/components/skeleton/issue-form-skeleton'
@@ -28,7 +28,7 @@ async function EditIssueForm({ params }: { params: Promise<{ id: string }> }) {
     notFound()
   }
 
-  return <IssueForm issue={issue as any} isEditing />
+  return <IssueForm issue={issue as unknown as Issue} isEditing />
 }
 
 // ─── Page shell ───────────────────────────────────────────────────────────────

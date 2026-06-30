@@ -117,7 +117,7 @@ export async function deleteOneIssue(issueId: string) {
     updateTag(`issue-${issueId}`)
     
     return { success: true }
-  } catch (err) {
+  } catch {
     return { error: 'Failed to delete issue' }
   }
 }

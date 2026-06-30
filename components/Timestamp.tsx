@@ -1,15 +1,14 @@
 "use client"
-import React, { useLayoutEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export const Timestamp = () => {
 
     const [time, setTime] = useState<number | null>(null)
 
-    useLayoutEffect(() => {
-      
+    useEffect(() => {
         const fullYear = new Date().getFullYear()
-       setTime(fullYear)
-     
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setTime(fullYear)
     }, [])
 
     if(time){

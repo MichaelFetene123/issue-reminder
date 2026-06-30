@@ -1,6 +1,5 @@
 // @/components/Navigation.tsx
-import Link from 'next/link'
-import { HomeIcon, PlusIcon, LogInIcon, LayoutDashboard, LogOutIcon } from 'lucide-react'
+import { HomeIcon, PlusIcon, LayoutDashboard, LogOutIcon } from 'lucide-react'
 import { Suspense } from 'react'
 import NavLink from './NavLink'
 import NavUser from './NavUser'

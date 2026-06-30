@@ -12,7 +12,7 @@ import { revalidatePath } from "next/cache";
 export type AuthActionResponse = {
     success?: boolean;
     error?: string;
-    errors?: Record<string, string[]> | any;
+    errors?: Record<string, string[]>;
     message?: string;
     user?: {
         id: string;

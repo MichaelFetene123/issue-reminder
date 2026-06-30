@@ -18,7 +18,7 @@ export async function proxy(request: NextRequest) {
         try {
             await jwtVerify(token, JWT_SECRET);
             hasValidSession = true;
-        } catch (error) {
+        } catch {
             hasValidSession = false;
         }
     }

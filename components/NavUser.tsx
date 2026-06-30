@@ -1,9 +1,7 @@
 // @/components/NavUser.tsx
 // Async server component — reads the session and renders user info or a sign-in link.
 import { getSession } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
-import NavLink from './NavLink'
-import { LogInIcon, UserIcon } from 'lucide-react'
+import { UserIcon } from 'lucide-react'
 import { getUserById } from '@/lib/actions/queries/user-queries'
 
 export default async function NavUser() {

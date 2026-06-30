@@ -37,7 +37,7 @@ export function DeleteIssueButton({ id }: { id: string }) {
       router.push('/dashboard')
       toast.success('Issue deleted successfully')
       setIsOpen(false)
-    } catch (error) {
+    } catch {
       toast.error('An unexpected error occurred')
     } finally {
       setIsDeleting(false)

@@ -31,6 +31,7 @@ export default function PendingPage() {
     useEffect(() => {
         const storedEmail = sessionStorage.getItem("pendingRegistrationEmail");
         if (storedEmail) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setEmail(storedEmail);
             setInboxUrl(getEmailInboxUrl(storedEmail));
         }
@@ -94,7 +95,7 @@ export default function PendingPage() {
                 </CardContent>
                 <CardDescription className="flex justify-center tracking-tight items-center pb-6">
                     <span>
-                        Didn't receive the email?{" "}
+                        Didn&apos;t receive the email?{" "}
                         <button
                             onClick={handleResend}
                             disabled={isPending || cooldown > 0}
