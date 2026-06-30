@@ -1,17 +1,18 @@
 // @/components/Navigation.tsx
 import Link from 'next/link'
-import { HomeIcon, PlusIcon, LogInIcon, LayoutDashboard } from 'lucide-react'
+import { HomeIcon, PlusIcon, LogInIcon, LayoutDashboard, LogOutIcon } from 'lucide-react'
 import { Suspense } from 'react'
 import NavLink from './NavLink'
 import NavUser from './NavUser'
 import { NavUserSkeleton } from './skeleton/nav-user-skeleton'
 import { getIssueCount } from '@/lib/actions/queries/issue-queries'
 import { getSession } from '@/lib/auth'
+import { logoutAction } from '@/lib/actions/mutations/auth-mutations'
 
 async function NewIssueLink() {
   const session = await getSession()
   const issueCount = session ? await getIssueCount(session.userId) : 0;
-  const newIssueLabel = issueCount === 0 ? "Create Issue" : "New Issue";
+  const newIssueLabel = issueCount === 0 ? "Create Issue" : "Add Issue";
 
   return (
     <NavLink
@@ -46,10 +47,23 @@ export default function Navigation() {
       </nav>
 
       {/* Auth section — Suspense boundary streams in NavUser without blocking the sidebar */}
-      <div className="pt-4 border-t border-border">
+      <div className="pt-4 border-t border-border space-y-1">
         <Suspense fallback={<NavUserSkeleton />}>
           <NavUser />
         </Suspense>
+
+        {/* Sign Out Button - completely static, loaded immediately with the shell */}
+        <form action={logoutAction}>
+          <button
+            type="submit"
+            className="flex w-full items-center px-2 py-2 text-sm font-medium rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer"
+          >
+            <span className="text-muted-foreground mr-3">
+              <LogOutIcon size={20} />
+            </span>
+            <span className="hidden md:inline">Sign Out</span>
+          </button>
+        </form>
       </div>
     </aside>
   )

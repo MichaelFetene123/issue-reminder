@@ -27,12 +27,18 @@ export function DeleteIssueButton({ id }: { id: string }) {
     e.stopPropagation()
     setIsDeleting(true)
     try {
-      await deleteOneIssue(id)
+      const response = await deleteOneIssue(id)
+      
+      if (response?.error) {
+        toast.error(response.error)
+        return
+      }
+
       router.push('/dashboard')
       toast.success('Issue deleted successfully')
       setIsOpen(false)
     } catch (error) {
-      toast.error('Failed to delete issue')
+      toast.error('An unexpected error occurred')
     } finally {
       setIsDeleting(false)
     }

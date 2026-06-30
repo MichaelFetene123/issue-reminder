@@ -3,7 +3,7 @@ import { Timestamp } from '@/components/Timestamp'
 import { Button } from '@/components/ui/button'
 import { ModeToggle } from '@/components/ModeToggle'
 import { getSession } from '@/lib/auth'
-import { LogoutAction } from '@/components/client/LogoutAction'
+import { logoutAction } from '@/lib/actions/mutations/auth-mutations'
 import { Suspense } from 'react'
 
 async function HeaderNav() {
@@ -20,9 +20,9 @@ async function AuthButtons() {
   const session = await getSession()
   if (session) {
     return (
-      <LogoutAction className="cursor-pointer">
-        <Button>Log out</Button>
-      </LogoutAction>
+      <form action={logoutAction}>
+        <Button type="submit" className="cursor-pointer">Log out</Button>
+      </form>
     )
   }
   return (

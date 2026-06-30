@@ -45,7 +45,7 @@ export function IssueDetailSkeleton() {
           <CardTitle className="flex items-center">Details</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-secondary/20 rounded-lg p-4 border border-secondary/30">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-secondary/20 rounded-lg p-4">
             <div className="space-y-2">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Assigned to

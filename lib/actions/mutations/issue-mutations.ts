@@ -101,21 +101,23 @@ export async function updateIssue(
 
 export async function deleteOneIssue(issueId: string) {
   const session = await getSession()
-  if (!session) throw new Error('Unauthorized')
+  if (!session) {
+    return { error: 'Unauthorized' }
+  }
 
   try {
-    const deletedIssue = await prisma.issue.delete({
+    await prisma.issue.delete({
       where: {
         userId: session.userId,
         id: issueId,
       },
     })
-    // User triggered delete — expire cache immediately so dashboard
-    // reflects the removal on the very next request
+    
     updateTag('issues')
     updateTag(`issue-${issueId}`)
-    return deletedIssue
-  } catch {
-    throw new Error('Failed to delete issue')
+    
+    return { success: true }
+  } catch (err) {
+    return { error: 'Failed to delete issue' }
   }
 }

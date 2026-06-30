@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { getIssues } from '@/lib/actions/queries/issue-queries'
+import { getIssueCount, getIssues } from '@/lib/actions/queries/issue-queries'
 import { formatRelativeTime } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -171,7 +171,24 @@ async function IssueTable() {
   )
 }
 
+// ____new issue button____________________
 
+async function NewIssueButton() {
+    const session = await getSession()
+    if (!session) redirect('/')
+  const issue = await getIssueCount(session.userId)
+  if (!issue || issue === 0) {
+    return null
+  }
+  return (
+    <Button asChild size="sm" className="gap-1.5">
+      <Link href="/dashboard/issues/new" prefetch={true}>
+        <Plus className="size-4" />
+        New Issue
+      </Link>
+    </Button>
+  )
+} 
 // ─── Page (sync shell) ────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
@@ -182,12 +199,9 @@ export default function DashboardPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Issues</h1>
         </div>
-        <Button asChild size="sm" className="gap-1.5">
-          <Link href="/dashboard/issues/new" prefetch={true}>
-            <Plus className="size-4" />
-            New Issue
-          </Link>
-        </Button>
+        <Suspense fallback={null}>
+          <NewIssueButton />
+        </Suspense>
       </div>
 
       {/* ── Stat cards ── */}

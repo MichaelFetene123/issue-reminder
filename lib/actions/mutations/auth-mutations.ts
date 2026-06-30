@@ -131,7 +131,7 @@ export async function loginAction(
 
         return {
             success: true,
-            message: "Login successful",
+            message: " Logged in successfully.",
             user: { id: user.id, email: user.email }
         }
     } catch (error) {
