@@ -20,29 +20,17 @@ import Link from "next/link";
 
 import { useActionState, useState, useEffect } from "react"
 import { toast } from "sonner"
-import { type ActionResponse } from "@/app/api/auth/signup/route"
+import { signupAction, type AuthActionResponse } from "@/lib/actions/mutations/auth-mutations"
 import { useRouter } from "next/navigation";
 
-const initialState: ActionResponse = {
+const initialState: AuthActionResponse = {
   success: false,
   message: '',
   errors: undefined,
 }
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
-const router = useRouter()
-  const signupAction = async (prevState: ActionResponse, formData: FormData) => {
-    try {
-      const response = await fetch("/api/auth/signup", {
-        method: "POST",
-        body: formData,
-      });
-      return await response.json();
-      
-    } catch (error) {
-      return { error: "An unexpected error occurred" };
-    }
-  }
+  const router = useRouter()
 
   const [state, formAction, isPending] = useActionState(signupAction, initialState);
   const [clientError, setClientError] = useState<string>("");
@@ -61,7 +49,7 @@ const router = useRouter()
       }
       router.push('/registration/pending');
     }
-  }, [state]);
+  }, [state, router]);
 
   const onSubmit = (formData: FormData) => {
     const password = formData.get("password");

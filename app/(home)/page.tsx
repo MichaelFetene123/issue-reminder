@@ -2,16 +2,19 @@ import Link from 'next/link'
 import { Timestamp } from '@/components/Timestamp'
 import { Button } from '@/components/ui/button'
 import { getSession } from '@/lib/auth'
+import { Suspense } from 'react'
 
-export const dynamic = "force-dynamic"
-
-export default async function HomePage() {
+async function AuthButton() {
   const session = await getSession();
-  // Trust the JWT directly — login already enforces emailVerifid before issuing tokens.
-  // A DB lookup here would add latency on every home page render for logged-in users.
-  // The dashboard layout handles the edge case of a user deleted after login.
   const getStartedLink = session ? "/dashboard" : "/signin";
+  return (
+    <Link href={getStartedLink} prefetch={true}>
+      <Button size="lg">{session ? "Go to Dashboard" : "Get Started"}</Button>
+    </Link>
+  )
+}
 
+export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-1">
@@ -28,9 +31,9 @@ export default async function HomePage() {
               your projects with ease.
             </p>
             <div className="mt-10">
-              <Link href={getStartedLink} prefetch={true}>
-                <Button size="lg">{session ? "Go to Dashboard" : "Get Started"}</Button>
-              </Link>
+              <Suspense fallback={<Button size="lg">Loading...</Button>}>
+                <AuthButton />
+              </Suspense>
             </div>
           </div>
         </div>

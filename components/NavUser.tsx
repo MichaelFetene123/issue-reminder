@@ -4,8 +4,8 @@ import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import NavLink from './NavLink'
 import { LogInIcon, LogOutIcon, UserIcon } from 'lucide-react'
-import Link from 'next/link'
-import { LogoutAction } from './client/LogoutAction'
+import { logoutAction } from '@/lib/actions/mutations/auth-mutations'
+import { getUserById } from '@/lib/actions/queries/user-queries'
 
 export default async function NavUser() {
   const session = await getSession()
@@ -19,12 +19,8 @@ export default async function NavUser() {
       />
     )
   }
-
   // Fetch just the email for display — safe, session userId is verified by JWT
-  const user = await prisma.user.findUnique({
-    where: { id: session.userId },
-    select: { email: true },
-  })
+const user = await getUserById(session.userId)
 
   const displayName = user?.email?.split('@')[0] ?? 'Account'
 
@@ -40,13 +36,19 @@ export default async function NavUser() {
         </span>
       </div>
 
-      {/* Sign out link — hits the logout API route which clears cookies */}
-      <LogoutAction className="flex items-center px-2 py-2 text-sm font-medium rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground group cursor-pointer">
-        <span className="text-muted-foreground mr-3">
-          <LogOutIcon size={20} />
-        </span>
-        <span className="hidden md:inline">Sign Out</span>
-      </LogoutAction>
+      {/* Sign out — native form action, progressively enhanced, no client boundary needed */}
+      <form action={logoutAction}>
+        <button
+          type="submit"
+          className="flex w-full items-center px-2 py-2 text-sm font-medium rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer"
+        >
+          <span className="text-muted-foreground mr-3">
+            <LogOutIcon size={20} />
+          </span>
+          <span className="hidden md:inline">Sign Out</span>
+        </button>
+      </form>
     </div>
   )
 }
+

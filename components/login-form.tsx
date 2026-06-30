@@ -22,17 +22,9 @@ import { useActionState, useEffect } from "react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation";
 
-// Define the response type matching the API
-export type LoginActionResponse = {
-  success?: boolean;
-  error?: string;
-  errors?: Record<string, string[]> | any;
-  message?: string;
-  accessToken?: string;
-  user?: any;
-}
+import { loginAction, type AuthActionResponse } from "@/lib/actions/mutations/auth-mutations";
 
-const initialState: LoginActionResponse = {
+const initialState: AuthActionResponse = {
   success: false,
   message: '',
   errors: undefined,
@@ -43,18 +35,6 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter()
-
-  const loginAction = async (prevState: LoginActionResponse, formData: FormData) => {
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        body: formData,
-      });
-      return await response.json();
-    } catch (error) {
-      return { error: "An unexpected error occurred" };
-    }
-  }
 
   const [state, formAction, isPending] = useActionState(loginAction, initialState);
 
@@ -67,11 +47,10 @@ export function LoginForm({
       toast.error(state.error);
     } else if (state?.message) {
       toast.success(state.message);
-      // Push to dashboard and refresh the router cache so Server Components (like NavUser) re-read the session cookie
+      // The server action handles revalidatePath('/'), so just push!
       router.push('/dashboard');
-      router.refresh();
     }
-  }, [state]);
+  }, [state, router]);
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>

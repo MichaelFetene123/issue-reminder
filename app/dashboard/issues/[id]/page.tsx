@@ -1,7 +1,9 @@
+import { Suspense } from 'react'
 import { getIssueById } from '@/lib/actions/queries/issue-queries'
 import { formatRelativeTime } from '@/lib/utils'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
+import { getSession } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 import { ArrowLeftIcon, Edit2Icon } from 'lucide-react'
 import { DeleteIssueButton } from '@/components/delete-issue-button'
@@ -12,14 +14,15 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { IssueDetailSkeleton } from '@/components/skeleton/issue-detail-skeleton'
 
-export default async function IssueDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
+// ─── Async data component ─────────────────────────────────────────────────────
+
+async function IssueDetail({ params }: { params: Promise<{ id: string }> }) {
+  const session = await getSession()
+  if (!session) redirect('/')
   const { id } = await params
-  const issue = await getIssueById(id)
+  const issue = await getIssueById(id, session.userId)
 
   if (!issue) {
     notFound()
@@ -31,15 +34,8 @@ export default async function IssueDetailPage({
   const priorityOpt = PRIORITY_OPTIONS.find(opt => opt.value === priority) || { label: priority, color: 'text-gray-500' }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-8 animate-in fade-in duration-500 slide-in-from-bottom-4">
+    <>
       <div className="mb-8">
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors"
-        >
-          <ArrowLeftIcon size={16} className="mr-1" />
-          Back to Issues
-        </Link>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
           <div className="flex items-center space-x-2">
@@ -116,6 +112,31 @@ export default async function IssueDetailPage({
           </div>
         </CardContent>
       </Card>
-    </div>
+    </>
   )
 }
+
+// ─── Page shell ───────────────────────────────────────────────────────────────
+
+export default function IssueDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  return (
+    <div className="max-w-4xl mx-auto p-4 md:p-8 animate-in fade-in duration-500 slide-in-from-bottom-4">
+      <div className="mb-4">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeftIcon size={16} className="mr-1" />
+          Back to Issues
+        </Link>
+      </div>
+      <Suspense fallback={<IssueDetailSkeleton />}>
+        <IssueDetail params={params} />
+      </Suspense>
+    </div>
+  )
+}

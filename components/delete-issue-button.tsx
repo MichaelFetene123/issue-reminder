@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { deleteOneIssue } from '@/lib/actions/queries/issue-queries'
+import { deleteOneIssue } from '@/lib/actions/mutations/issue-mutations'
 import { Trash, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -28,7 +28,6 @@ export function DeleteIssueButton({ id }: { id: string }) {
     setIsDeleting(true)
     try {
       await deleteOneIssue(id)
-      router.refresh()
       router.push('/dashboard')
       toast.success('Issue deleted successfully')
       setIsOpen(false)

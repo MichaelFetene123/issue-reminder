@@ -1,50 +1,66 @@
-
 import Link from 'next/link'
 import { Timestamp } from '@/components/Timestamp'
 import { Button } from '@/components/ui/button'
 import { ModeToggle } from '@/components/ModeToggle'
 import { getSession } from '@/lib/auth'
 import { LogoutAction } from '@/components/client/LogoutAction'
+import { Suspense } from 'react'
 
-export default async function HomeLayout({
+async function HeaderNav() {
+  const session = await getSession()
+  if (!session) return null
+  return (
+    <Link href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors hidden md:block" prefetch={true}>
+      Dashboard
+    </Link>
+  )
+}
+
+async function AuthButtons() {
+  const session = await getSession()
+  if (session) {
+    return (
+      <LogoutAction className="cursor-pointer">
+        <Button>Log out</Button>
+      </LogoutAction>
+    )
+  }
+  return (
+    <>
+      <Link href="/signin">
+        <Button variant="outline">Sign in</Button>
+      </Link>
+      <Link href="/signup">
+        <Button>Sign up</Button>
+      </Link>
+    </>
+  )
+}
+
+export default function HomeLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const session = await getSession()
-
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 bg-muted/80 backdrop-blur-sm ">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-8">
-            <Link href="/" className="text-xl font-bold hover:text-primary">
-              Issue <span className='hidden md:inline'>Reminder</span>
+            <Link href="/" className="text-xl font-bold">
+              Issue <span className='hidden md:inline text-primary'>Reminder</span>
             </Link>
-            {session && (
-              <Link href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors hidden md:block" prefetch={true}>
-                Dashboard
-              </Link>
-            )}
+            <Suspense fallback={null}>
+              <HeaderNav />
+            </Suspense>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center space-x-4">
               {/* dark mode toggle */}
               <ModeToggle />
-              {session ? (
-                <LogoutAction className="cursor-pointer">
-                  <Button>Log out</Button>
-                </LogoutAction>
-              ) : (
-                <>
-                  <Link href="/signin">
-                    <Button variant="outline">Sign in</Button>
-                  </Link>
-                  <Link href="/signup">
-                    <Button>Sign up</Button>
-                  </Link>
-                </>
-              )}
+              <Suspense fallback={<div className="h-9 w-40" />}>
+                <AuthButtons />
+              </Suspense>
             </div>
           </div>
         </div>
@@ -137,4 +153,3 @@ export default async function HomeLayout({
     </div>
   )
 }
-

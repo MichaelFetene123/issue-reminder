@@ -6,12 +6,23 @@ import NavLink from './NavLink'
 import NavUser from './NavUser'
 import { NavUserSkeleton } from './skeleton/nav-user-skeleton'
 import { getIssueCount } from '@/lib/actions/queries/issue-queries'
+import { getSession } from '@/lib/auth'
 
-export default async function Navigation() {
-  const issueCount = await getIssueCount();
-
+async function NewIssueLink() {
+  const session = await getSession()
+  const issueCount = session ? await getIssueCount(session.userId) : 0;
   const newIssueLabel = issueCount === 0 ? "Create Issue" : "New Issue";
 
+  return (
+    <NavLink
+      href="/dashboard/issues/new"
+      icon={<PlusIcon size={20} />}
+      label={newIssueLabel}
+    />
+  )
+}
+
+export default function Navigation() {
   return (
     <aside className="fixed inset-y-0 left-0 w-16 md:w-64 bg-background shadow-md z-10 flex flex-col py-4 px-2 md:px-4">
       {/* Logo / Title */}
@@ -29,11 +40,9 @@ export default async function Navigation() {
           icon={<HomeIcon size={20} />}
           label="Home"
         />
-        <NavLink
-          href="/dashboard/issues/new"
-          icon={<PlusIcon size={20} />}
-          label={newIssueLabel}
-        />
+        <Suspense fallback={<NavLink href="/dashboard/issues/new" icon={<PlusIcon size={20} />} label="New Issue" />}>
+          <NewIssueLink />
+        </Suspense>
       </nav>
 
       {/* Auth section — Suspense boundary streams in NavUser without blocking the sidebar */}

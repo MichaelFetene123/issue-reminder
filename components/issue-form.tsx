@@ -8,7 +8,6 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldDescription,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -22,7 +21,6 @@ import {
 import { toast } from 'sonner'
 import {
   AlertCircle,
-  CheckCircle2,
   Loader2,
   Flag,
   Tag,
@@ -30,20 +28,9 @@ import {
   ArrowLeft,
 } from 'lucide-react'
 import { STATUS_OPTIONS, PRIORITY_OPTIONS } from '@/lib/validationSchema'
+import { createIssue, updateIssue, type IssueActionResponse } from '@/lib/actions/mutations/issue-mutations'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
-
-export type IssueActionResponse = {
-  success?: boolean
-  message?: string
-  error?: string
-  errors?: {
-    title?: string[]
-    description?: string[]
-    status?: string[]
-    priority?: string[]
-  }
-}
 
 export interface Issue {
   id: string | number
@@ -60,7 +47,6 @@ interface IssueFormProps {
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-
 const initialState: IssueActionResponse = {
   success: false,
   message: '',
@@ -72,42 +58,21 @@ const initialState: IssueActionResponse = {
 export default function IssueForm({ issue, isEditing = false }: IssueFormProps) {
   const router = useRouter()
 
-  const submitAction = async (
-    prevState: IssueActionResponse,
-    formData: FormData,
-  ): Promise<IssueActionResponse> => {
-    try {
-      const url = isEditing ? `/api/issues/${issue!.id}` : '/api/issues'
-      const method = isEditing ? 'PATCH' : 'POST'
+  const action = isEditing 
+    ? updateIssue.bind(null, String(issue!.id))
+    : createIssue
 
-      const response = await fetch(url, { method, body: formData })
-      const data = await response.json()
-      if (!response.ok) {
-        return data
-      }
-
-      const message = isEditing ? 'Issue updated successfully.' : 'Issue created successfully.'
-      toast.success(message)
-      router.push(isEditing ? `/dashboard/issues/${issue!.id}` : '/dashboard')
-      router.refresh()
-
-      return {
-        success: true,
-      }
-    } catch {
-      return { error: 'An unexpected error occurred. Please try again.' }
-    }
-  }
-
-  const [state, formAction, isPending] = useActionState(submitAction, initialState)
+  const [state, formAction, isPending] = useActionState(action, initialState)
 
   useEffect(() => {
-    if (state?.errors) return
-
-    if (state?.error) {
+    if (state?.success) {
+      router.push(isEditing ? `/dashboard/issues/${issue!.id}` : '/dashboard')
+      toast.success(state.message)
+    } else if (state?.error) {
       toast.error(state.error)
     }
-  }, [state])
+  }, [state, router, isEditing, issue])
+
 
   return (
     <form action={formAction} noValidate className="space-y-6">

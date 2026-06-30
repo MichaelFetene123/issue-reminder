@@ -1,19 +1,18 @@
-"use server"
 
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/auth";
+import { cacheTag, cacheLife } from 'next/cache'
 
+// Get user by ID
 export async function getUserById(id: string) {
-    const session = await getSession();
-    if (!session) throw new Error("Unauthorized");
-    return prisma.user.findUnique({ where: { id } })
+    'use cache'
+    cacheTag('users')
+    cacheLife('minutes')
+    return prisma.user.findUnique({ 
+        where: { id }, 
+        select: { email: true } 
+    })
 }
 
 
-export async function getUserByEmail(email: string) {
-    const session = await getSession();
-    if (!session) throw new Error("Unauthorized");
-    return prisma.user.findUnique({ where: { email } })
-}
 
 

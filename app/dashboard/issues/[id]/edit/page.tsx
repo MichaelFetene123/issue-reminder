@@ -4,7 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CircleDot } from 'lucide-react'
 import { FormSkeleton } from '@/components/skeleton/issue-form-skeleton'
 import { getIssueById } from '@/lib/actions/queries/issue-queries'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
+
+import { getSession } from '@/lib/auth'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -14,18 +16,28 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   }
 }
 
-export default async function EditIssuePage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
+// ─── Async data component ─────────────────────────────────────────────────────
+
+async function EditIssueForm({ params }: { params: Promise<{ id: string }> }) {
+  const session = await getSession()
+  if (!session) redirect('/')
   const { id } = await params
-  const issue = await getIssueById(id)
+  const issue = await getIssueById(id, session.userId)
 
   if (!issue) {
     notFound()
   }
 
+  return <IssueForm issue={issue as any} isEditing />
+}
+
+// ─── Page shell ───────────────────────────────────────────────────────────────
+
+export default function EditIssuePage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
   return (
     <div className="mx-auto max-w-2xl">
       {/* Page header */}
@@ -47,7 +59,7 @@ export default async function EditIssuePage({
         </CardHeader>
         <CardContent className="pt-6">
           <Suspense fallback={<FormSkeleton />}>
-            <IssueForm issue={issue as any} isEditing />
+            <EditIssueForm params={params} />
           </Suspense>
         </CardContent>
       </Card>
