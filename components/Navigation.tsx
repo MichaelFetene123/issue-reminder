@@ -1,12 +1,12 @@
 // @/components/Navigation.tsx
-import { HomeIcon, PlusIcon, LayoutDashboard, LogOutIcon } from 'lucide-react'
+import { HomeIcon, PlusIcon, LayoutDashboard } from 'lucide-react'
 import { Suspense } from 'react'
 import NavLink from './NavLink'
-import NavUser from './NavUser'
 import { NavUserSkeleton } from './skeleton/nav-user-skeleton'
 import { getIssueCount } from '@/lib/actions/queries/issue-queries'
 import { getSession } from '@/lib/auth'
-import { logoutAction } from '@/lib/actions/mutations/auth-mutations'
+import { prisma } from '@/lib/prisma'
+import { ProfileDropdown } from './ProfileDropdown'
 
 async function NewIssueLink() {
   const session = await getSession()
@@ -19,6 +19,24 @@ async function NewIssueLink() {
       icon={<PlusIcon size={20} />}
       label={newIssueLabel}
     />
+  )
+}
+
+async function NavProfileButton() {
+  const session = await getSession()
+  if (!session) return null
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: { name: true, email: true, image: true },
+  })
+  return (
+    <div className="flex items-center justify-center md:justify-start px-2 py-2">
+      <ProfileDropdown
+        name={user?.name}
+        email={user?.email}
+        image={user?.image}
+      />
+    </div>
   )
 }
 
@@ -45,24 +63,11 @@ export default function Navigation() {
         </Suspense>
       </nav>
 
-      {/* Auth section — Suspense boundary streams in NavUser without blocking the sidebar */}
-      <div className="pt-4 border-t border-border space-y-1">
+      {/* Auth section */}
+      <div className="pt-4 border-t border-border">
         <Suspense fallback={<NavUserSkeleton />}>
-          <NavUser />
+          <NavProfileButton />
         </Suspense>
-
-        {/* Sign Out Button - completely static, loaded immediately with the shell */}
-        <form action={logoutAction}>
-          <button
-            type="submit"
-            className="flex w-full items-center px-2 py-2 text-sm font-medium rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer"
-          >
-            <span className="text-muted-foreground mr-3">
-              <LogOutIcon size={20} />
-            </span>
-            <span className="hidden md:inline">Sign Out</span>
-          </button>
-        </form>
       </div>
     </aside>
   )

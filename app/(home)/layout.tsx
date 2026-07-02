@@ -6,6 +6,7 @@ import { getSession } from '@/lib/auth'
 import { Suspense } from 'react'
 import { ProfileDropdown } from '@/components/ProfileDropdown'
 import { prisma } from '@/lib/prisma'
+import { Skeleton } from '@/components/ui/skeleton'
 
 async function HeaderNav() {
   const session = await getSession()
@@ -65,7 +66,7 @@ export default function HomeLayout({
             <div className="flex items-center space-x-4">
               {/* dark mode toggle */}
               <ModeToggle />
-              <Suspense fallback={<div className="h-9 w-40" />}>
+              <Suspense fallback={<Skeleton className="h-9 w-9 rounded-full" />}>
                 <AuthButtons />
               </Suspense>
             </div>
@@ -75,39 +76,30 @@ export default function HomeLayout({
 
       <main className="flex-1">{children}</main>
 
-      <footer className="  bg-muted">
+      <footer className="bg-muted">
         <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
             <div>
-              <h3 className="text-lg font-semibold mb-4">Mode</h3>
+              <h3 className="text-lg font-semibold mb-4">Issue Reminder</h3>
               <p className="text-sm text-muted-foreground">
-                A modern project management tool built with Next.js.
+                A simple, focused issue tracking and reminder tool built with Next.js.
               </p>
             </div>
             <div>
               <h3 className="text-sm font-semibold mb-4">Product</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link
-                    href="/features"
-                    className="text-sm text-muted-foreground hover:text-primary"
-                  >
+                  <Link href="#" className="text-sm text-muted-foreground hover:text-primary">
                     Features
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="/pricing"
-                    className="text-sm text-muted-foreground hover:text-primary"
-                  >
+                  <Link href="#" className="text-sm text-muted-foreground hover:text-primary">
                     Pricing
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="/faq"
-                    className="text-sm text-muted-foreground hover:text-primary"
-                  >
+                  <Link href="#" className="text-sm text-muted-foreground hover:text-primary">
                     FAQ
                   </Link>
                 </li>
@@ -117,22 +109,19 @@ export default function HomeLayout({
               <h3 className="text-sm font-semibold mb-4">Resources</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link
-                    href="/docs"
-                    className="text-sm text-muted-foreground hover:text-primary"
-                  >
+                  <Link href="#" className="text-sm text-muted-foreground hover:text-primary">
                     Documentation
                   </Link>
                 </li>
                 <li>
-                  <a
-                    href="https://github.com/yourusername/mode"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-muted-foreground hover:text-primary"
-                  >
+                  <Link href="#" className="text-sm text-muted-foreground hover:text-primary">
+                    Changelog
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="text-sm text-muted-foreground hover:text-primary">
                     GitHub
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -140,19 +129,21 @@ export default function HomeLayout({
               <h3 className="text-sm font-semibold mb-4">Legal</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link
-                    href="/terms"
-                    className="text-sm text-muted-foreground hover:text-primary"
-                  >
+                  <Link href="#" className="text-sm text-muted-foreground hover:text-primary">
                     Terms of Service
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="text-sm text-muted-foreground hover:text-primary">
+                    Privacy Policy
                   </Link>
                 </li>
               </ul>
             </div>
           </div>
-          <div className="mt-8  pt-8 text-center">
+          <div className="mt-8 pt-8 text-center border-t border-border">
             <p className="text-sm text-muted-foreground">
-              &copy; <Timestamp /> Mode. All rights reserved.
+              &copy; <Timestamp /> Issue Reminder. All rights reserved.
             </p>
           </div>
         </div>

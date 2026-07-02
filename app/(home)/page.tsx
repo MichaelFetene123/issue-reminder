@@ -43,7 +43,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
           <div className="text-center text-sm text-muted-foreground">
             <p>
-              © <Timestamp /> Mode. Built for Next.js Fundamentals.
+              © <Timestamp /> Issue Reminder. All rights reserved.
             </p>
           </div>
         </div>
