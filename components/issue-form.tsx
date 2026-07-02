@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useEffect, useRef } from 'react'
+import { useActionState, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import {
@@ -57,6 +57,9 @@ const initialState: IssueActionResponse = {
 
 export default function IssueForm({ issue, isEditing = false }: IssueFormProps) {
   const router = useRouter()
+
+  const [status, setStatus] = useState<Issue['status']>(issue?.status ?? 'BACKLOG')
+  const [priority, setPriority] = useState<Issue['priority']>(issue?.priority ?? 'MEDIUM')
 
   const action = isEditing
     ? updateIssue.bind(null, String(issue!.id))
@@ -151,7 +154,8 @@ export default function IssueForm({ issue, isEditing = false }: IssueFormProps) 
             </FieldLabel>
             <Select
               name="status"
-              defaultValue={issue?.status ?? 'BACKLOG'}
+              value={status}
+              onValueChange={(v) => setStatus(v as Issue['status'])}
               disabled={isPending}
               required
             >
@@ -185,7 +189,8 @@ export default function IssueForm({ issue, isEditing = false }: IssueFormProps) 
             </FieldLabel>
             <Select
               name="priority"
-              defaultValue={issue?.priority ?? 'MEDIUM'}
+              value={priority}
+              onValueChange={(v) => setPriority(v as Issue['priority'])}
               disabled={isPending}
               required
             >
