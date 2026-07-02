@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useEffect, useRef, useState } from 'react'
+import { useActionState, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import {
@@ -61,9 +61,23 @@ export default function IssueForm({ issue, isEditing = false }: IssueFormProps) 
   const [status, setStatus] = useState<Issue['status']>(issue?.status ?? 'BACKLOG')
   const [priority, setPriority] = useState<Issue['priority']>(issue?.priority ?? 'MEDIUM')
 
-  const action = isEditing
-    ? updateIssue.bind(null, String(issue!.id))
-    : createIssue
+  // Keep the controlled selects in sync if the issue prop updates
+  // (e.g. during hydration or after a revalidation)
+  useEffect(() => {
+    if (issue?.status) setStatus(issue.status)
+  }, [issue?.status])
+
+  useEffect(() => {
+    if (issue?.priority) setPriority(issue.priority)
+  }, [issue?.priority])
+
+  // Stabilise the bound action reference so useActionState does not reset its
+  // internal form state (and wipe the Select values) on every re-render.
+  const action = useMemo(
+    () => (isEditing ? updateIssue.bind(null, String(issue!.id)) : createIssue),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isEditing, issue?.id],
+  )
 
   const [state, formAction, isPending] = useActionState(action, initialState)
   const handledState = useRef(state)
