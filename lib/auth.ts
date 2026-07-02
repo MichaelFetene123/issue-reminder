@@ -3,6 +3,7 @@ import { SignJWT, jwtVerify } from 'jose'
 import { cookies } from 'next/headers'
 import { cache } from 'react'
 import { auth } from '@/auth'
+import { prisma } from '@/lib/prisma'
 
 // JWT types
 interface JWTPayload {
@@ -97,16 +98,32 @@ export const getSession = cache(async () => {
     const cookieStore = await cookies();
     const token = cookieStore.get('refresh_token')?.value;
     
+    let activeUserId: string | null = null;
+
     if (token) {
       const payload = await verifyToken(token)
       if (payload && payload.userId && typeof payload.userId === 'string') {
-        return { userId: payload.userId };
+        activeUserId = payload.userId;
       }
     }
     
-    const nextSession = await auth();
-    if (nextSession?.user?.id) {
-      return { userId: nextSession.user.id };
+    if (!activeUserId) {
+      const nextSession = await auth();
+      if (nextSession?.user?.id) {
+        activeUserId = nextSession.user.id;
+      }
+    }
+
+    if (activeUserId) {
+      // Verify user actually exists in the database still
+      const userExists = await prisma.user.findUnique({
+        where: { id: activeUserId },
+        select: { id: true },
+      });
+
+      if (userExists) {
+        return { userId: activeUserId };
+      }
     }
     
     return null;
