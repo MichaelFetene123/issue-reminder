@@ -3,6 +3,7 @@ import { Timestamp } from '@/components/Timestamp'
 import { Button } from '@/components/ui/button'
 import { getSession } from '@/lib/auth'
 import { Suspense } from 'react'
+import { Loader2 } from 'lucide-react'
 
 async function AuthButton() {
   const session = await getSession();
@@ -31,7 +32,7 @@ export default function HomePage() {
               your projects with ease.
             </p>
             <div className="mt-10">
-              <Suspense fallback={<Button size="lg">Loading...</Button>}>
+              <Suspense fallback={<Button size="lg" disabled><Loader2 className="size-4 animate-spin" /></Button>}>
                 <AuthButton />
               </Suspense>
             </div>
