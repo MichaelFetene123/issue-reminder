@@ -20,6 +20,7 @@ import Link from 'next/link';
 import { useActionState, useEffect } from "react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 import { loginAction, type AuthActionResponse } from "@/lib/actions/mutations/auth-mutations";
 
@@ -102,7 +103,7 @@ export function LoginForm({
                 <Button disabled={isPending} type="submit">
                   {isPending ? <div className="flex justify-center items-center gap-2"><Loader2 className="animate-spin w-5 h-5" /> Logging in...</div> : "Login"}
                 </Button>
-                <Button variant="outline" type="button">
+                <Button variant="outline" type="button" onClick={() => signIn("google", { callbackUrl: "/dashboard" })}>
                   Login with Google
                 </Button>
                 <FieldDescription className="text-center">

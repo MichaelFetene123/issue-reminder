@@ -8,6 +8,7 @@ import { randomBytes } from 'crypto';
 import { sendConfirmationEmail } from "@/lib/utils/email";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { signOut } from "@/auth";
 
 export type AuthActionResponse = {
     success?: boolean;
@@ -41,9 +42,16 @@ export async function signupAction(
     try {
         const existingUser = await prisma.user.findUnique({ where: { email } })
         if (existingUser) {
+            // If the account was created via Google, guide the user to sign in that way
+            if (existingUser.googleId && !existingUser.password) {
+                return {
+                    error: 'This email is linked to a Google account. Please sign in with Google.',
+                    errors: { email: ['This email is registered via Google. Use "Sign in with Google" instead.'] }
+                }
+            }
             return {
                 error: 'Account already exists',
-                errors: { email: ['Account already exists'] }
+                errors: { email: ['An account with this email already exists.'] }
             }
         }
 
@@ -112,6 +120,10 @@ export async function loginAction(
             return { error: 'Invalid authentication credentials.' }
         }
 
+        if (!user.password) {
+            return { error: 'Please sign in with Google.' }
+        }
+
         const isValid = await verifyPassword(password, user.password);
         if (!isValid) {
             return { error: 'Invalid authentication credentials.' }
@@ -144,7 +156,12 @@ export async function logoutAction() {
     try {
         await deleteSession();
         revalidatePath('/', 'layout');
+        await signOut({ redirectTo: '/' });
     } catch (error) {
+        // NextAuth's signOut throws a Next.js redirect error, so we must re-throw it
+        if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
+            throw error;
+        }
         console.error('Logout failed:', error);
     }
     redirect('/');

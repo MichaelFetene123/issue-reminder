@@ -21,6 +21,7 @@ import { useActionState, useState, useEffect } from "react"
 import { toast } from "sonner"
 import { signupAction, type AuthActionResponse } from "@/lib/actions/mutations/auth-mutations"
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 const initialState: AuthActionResponse = {
   success: false,
@@ -126,7 +127,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             <FieldGroup>
               <Field>
                 <Button disabled={isPending} type="submit">{isPending ? <div className="flex justify-center items-center gap-2"><Loader2 className="animate-spin w-5 h-5" /> Creating Account...</div>: "Create Account"}</Button>
-                <Button variant="outline" type="button">
+                <Button variant="outline" type="button" onClick={() => signIn("google", { callbackUrl: "/dashboard" })}>
                   Sign up with Google
                 </Button>
                 <FieldDescription className="px-6 text-center">

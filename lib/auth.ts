@@ -2,6 +2,7 @@
 import { SignJWT, jwtVerify } from 'jose'
 import { cookies } from 'next/headers'
 import { cache } from 'react'
+import { auth } from '@/auth'
 
 // JWT types
 interface JWTPayload {
@@ -96,12 +97,19 @@ export const getSession = cache(async () => {
     const cookieStore = await cookies();
     const token = cookieStore.get('refresh_token')?.value;
     
-    if (!token) return null;
+    if (token) {
+      const payload = await verifyToken(token)
+      if (payload && payload.userId && typeof payload.userId === 'string') {
+        return { userId: payload.userId };
+      }
+    }
     
-    const payload = await verifyToken(token)
-    if (!payload || !payload.userId || typeof payload.userId !== 'string') return null;
+    const nextSession = await auth();
+    if (nextSession?.user?.id) {
+      return { userId: nextSession.user.id };
+    }
     
-    return { userId: payload.userId }; // CLEANED UP: Returns a consistent object structure safely
+    return null;
   } catch (error) {
     if (error instanceof Error && error.message.includes('During prerendering')) {
       return null

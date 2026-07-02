@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useEffect } from 'react'
+import { useActionState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import {
@@ -58,13 +58,20 @@ const initialState: IssueActionResponse = {
 export default function IssueForm({ issue, isEditing = false }: IssueFormProps) {
   const router = useRouter()
 
-  const action = isEditing 
+  const action = isEditing
     ? updateIssue.bind(null, String(issue!.id))
     : createIssue
 
   const [state, formAction, isPending] = useActionState(action, initialState)
+  const handledState = useRef(state)
 
   useEffect(() => {
+    // If the state hasn't changed since we last handled it (or since mount),
+    // do nothing. This completely blocks Next.js from aggressively restoring 
+    // cached success states on page load.
+    if (handledState.current === state) return
+    handledState.current = state
+
     if (state?.success) {
       router.push(isEditing ? `/dashboard/issues/${issue!.id}` : '/dashboard')
       toast.success(state.message)

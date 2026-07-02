@@ -3,8 +3,9 @@ import { Timestamp } from '@/components/Timestamp'
 import { Button } from '@/components/ui/button'
 import { ModeToggle } from '@/components/ModeToggle'
 import { getSession } from '@/lib/auth'
-import { logoutAction } from '@/lib/actions/mutations/auth-mutations'
 import { Suspense } from 'react'
+import { ProfileDropdown } from '@/components/ProfileDropdown'
+import { prisma } from '@/lib/prisma'
 
 async function HeaderNav() {
   const session = await getSession()
@@ -19,10 +20,16 @@ async function HeaderNav() {
 async function AuthButtons() {
   const session = await getSession()
   if (session) {
+    const user = await prisma.user.findUnique({
+      where: { id: session.userId },
+      select: { name: true, email: true, image: true },
+    })
     return (
-      <form action={logoutAction}>
-        <Button type="submit" className="cursor-pointer">Log out</Button>
-      </form>
+      <ProfileDropdown
+        name={user?.name}
+        email={user?.email}
+        image={user?.image}
+      />
     )
   }
   return (

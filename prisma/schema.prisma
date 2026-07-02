@@ -10,7 +10,10 @@ datasource db {
 model User {
   id               String    @id @default(cuid())
   email            String    @unique
-  password         String
+  password         String?
+  name             String?
+  image            String?
+  googleId         String?   @unique
   emailVerifid     Boolean   @default(false)
   emailToken       String    @default("")
   emailTokenExpiry DateTime?
