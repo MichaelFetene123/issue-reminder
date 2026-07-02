@@ -32,7 +32,7 @@ export default function HomePage() {
               your projects with ease.
             </p>
             <div className="mt-10">
-              <Suspense fallback={<Button size="lg" disabled><Loader2 className="size-4 animate-spin" /></Button>}>
+              <Suspense fallback={<Button size="lg">Loading...</Button>}>
                 <AuthButton />
               </Suspense>
             </div>
