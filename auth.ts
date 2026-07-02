@@ -55,15 +55,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             where: { id: dbUser.id },
             data: {
               googleId: account.providerAccountId,
-              // Only backfill name/image if they don't already have one
+              // Always take the latest Google name/image so the avatar stays fresh
               name: dbUser.name ?? user.name,
-              image: dbUser.image ?? user.image,
+              image: user.image ?? dbUser.image,
               // If they verified via Google, we can trust the email is verified
               emailVerifid: true,
             },
           });
+        } else {
+          // --- CASE 3: Account already linked. Refresh name/image from Google so the
+          //     avatar never goes stale (Google photo URLs can change between sessions). ---
+          await prisma.user.update({
+            where: { id: dbUser.id },
+            data: {
+              image: user.image ?? dbUser.image,
+              name: user.name ?? dbUser.name,
+            },
+          });
         }
-        // CASE 3: Account already linked (dbUser.googleId is set). Nothing to do.
 
         // Create the custom cookie-based session so the rest of the app works seamlessly
         await createSession(dbUser.id);

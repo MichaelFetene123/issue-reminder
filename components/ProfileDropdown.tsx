@@ -21,6 +21,8 @@ export function ProfileDropdown({ name, email, image }: ProfileDropdownProps) {
   const [isPending, startTransition] = useTransition()
   const initials = name
     ? name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+    : email
+    ? email[0].toUpperCase()
     : "?"
 
   return (
