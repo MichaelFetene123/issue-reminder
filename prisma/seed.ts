@@ -11,7 +11,7 @@ async function main() {
       create: {
         email: "alice@prisma.io",
         password: defaultPassword,
-        emailVerifid: true,
+        emailVerifid: false,
       },
     }),
     prisma.user.upsert({
@@ -20,7 +20,7 @@ async function main() {
       create: {
         email: "bob@prisma.io",
         password: defaultPassword,
-        emailVerifid: true,
+        emailVerifid: false,
       },
     }),
   ]);

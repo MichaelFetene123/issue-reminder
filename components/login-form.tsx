@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { House, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { useActionState, useEffect, useState } from "react"
+import { useActionState, useEffect, useState, useRef } from "react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
@@ -38,8 +38,12 @@ export function LoginForm({
 
   const [state, formAction, isPending] = useActionState(loginAction, initialState);
   const [googlePending, setGooglePending] = useState(false)
+  const handledState = useRef(state)
 
   useEffect(() => {
+    if (handledState.current === state) return
+    handledState.current = state
+
     if (state?.errors) {
       // Field-level validation errors — shown inline, no toast needed
       return;

@@ -7,6 +7,7 @@ import { loginSchema, signupSchema } from "@/lib/validationSchema";
 import { randomBytes } from 'crypto';
 import { sendConfirmationEmail } from "@/lib/utils/email";
 import { redirect } from "next/navigation";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { revalidatePath } from "next/cache";
 import { signOut } from "@/auth";
 
@@ -159,7 +160,7 @@ export async function logoutAction() {
         await signOut({ redirectTo: '/' });
     } catch (error) {
         // NextAuth's signOut throws a Next.js redirect error, so we must re-throw it
-        if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
+        if (isRedirectError(error)) {
             throw error;
         }
         console.error('Logout failed:', error);

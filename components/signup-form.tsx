@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input"
 import { House, Loader2 } from "lucide-react"
 import Link from "next/link";
 
-import { useActionState, useState, useEffect } from "react"
+import { useActionState, useState, useEffect, useRef } from "react"
 import { toast } from "sonner"
 import { signupAction, type AuthActionResponse } from "@/lib/actions/mutations/auth-mutations"
 import { useRouter } from "next/navigation";
@@ -35,8 +35,12 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const [state, formAction, isPending] = useActionState(signupAction, initialState);
   const [googlePending, setGooglePending] = useState(false)
   const [clientError, setClientError] = useState<string>("");
+  const handledState = useRef(state)
 
   useEffect(() => {
+    if (handledState.current === state) return
+    handledState.current = state
+
     if (state?.errors) {
       // Field-level validation errors — shown inline, no toast needed
       return;
